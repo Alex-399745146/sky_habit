@@ -9,7 +9,6 @@ class PlaceAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "owner", "is_public", "created_at")
     list_filter = ("is_public", "created_at")
     search_fields = ("name", "owner__email")
-    raw_id_fields = ("owner",)
 
 
 @admin.register(Habit)
