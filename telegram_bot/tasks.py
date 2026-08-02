@@ -1,17 +1,11 @@
 # telegram_bot/tasks.py
 
-import asyncio
-import logging
-
 from celery import shared_task
 from django.conf import settings
-from django.utils import timezone
 from telegram import Bot
 
-from habits.models import Habit
 
 logger = logging.getLogger(__name__)
-
 
 @shared_task
 def send_daily_reminders():
@@ -29,21 +23,16 @@ def send_daily_reminders():
         if not habit_time:
             continue
 
-        habit_time_clean = (
-            habit_time.replace(second=0, microsecond=0) if hasattr(habit_time, "replace") else habit_time
-        )
 
         if habit_time_clean == current_time:
             print(f"[CELERY] Sending notification for habit {habit.id} ({habit.action}) at {current_time}")
             send_telegram_notification.delay(habit.id)
-
 
 @shared_task
 def send_telegram_notification(habit_id):
     """Отправка уведомления в Telegram"""
 
     try:
-        habit = Habit.objects.select_related("owner__telegram_profile", "place", "owner").get(id=habit_id)
     except Habit.DoesNotExist:
         logger.warning(f"Habit {habit_id} not found")
         return
