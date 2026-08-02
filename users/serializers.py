@@ -40,6 +40,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    """
+    Сериализатор запроса сброса пароля.
+    """
+
+    email = serializers.EmailField()
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    """
+    Сериализатор подтверждения сброса пароля (новый пароль).
+    """
+
+    new_password = serializers.CharField(min_length=6, write_only=True)
+
+
 class EmailVerificationService:
     """
     Заглушка для отправки email: сохраняет JSON в tmp/emails/.
@@ -57,6 +73,26 @@ class EmailVerificationService:
         }
 
         filename = f"verify_{uuid.uuid4().hex}.json"
+        file_path = tmp_dir / filename
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+
+        return file_path
+
+    @staticmethod
+    def send_password_reset_email(email: str, token: str, uid: str):
+        tmp_dir = Path(settings.BASE_DIR) / "tmp" / "emails"
+        tmp_dir.mkdir(parents=True, exist_ok=True)
+
+        payload = {
+            "email": email,
+            "token": token,
+            "uid": uid,
+            "type": "password_reset",
+        }
+
+        filename = f"reset_{uuid.uuid4().hex}.json"
         file_path = tmp_dir / filename
 
         with open(file_path, "w", encoding="utf-8") as f:

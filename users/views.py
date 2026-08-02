@@ -6,11 +6,19 @@ import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .serializers import UserRegistrationSerializer, EmailVerificationService
+from .serializers import (
+    UserRegistrationSerializer,
+    EmailVerificationService,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+)
 
 User = get_user_model()
 
@@ -50,11 +58,6 @@ class EmailVerificationView(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, token):
-        # В реальном проекте здесь была бы проверка токена в БД/кэше
-        # Для заглушки — просто ищем файл в tmp/emails/
-        from pathlib import Path
-        import json
-
         tmp_dir = Path(settings.BASE_DIR) / "tmp" / "emails"
         found = False
 
@@ -62,7 +65,6 @@ class EmailVerificationView(generics.GenericAPIView):
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if data.get("token") == token:
-                    # Находим пользователя по email
                     user = User.objects.get(email=data["email"])
                     user.is_verified = True
                     user.save()
@@ -76,3 +78,76 @@ class EmailVerificationView(generics.GenericAPIView):
             )
 
         return Response({"detail": "Email успешно подтверждён."})
+
+
+class PasswordResetRequestView(generics.GenericAPIView):
+    """
+    Запрос сброса пароля: генерация токена и «отправка» письма (заглушка).
+    """
+
+    serializer_class = PasswordResetRequestSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # В целях безопасности не сообщаем, существует ли пользователь
+            return Response(
+                {"detail": "Если пользователь с таким email существует, ему отправлено письмо."},
+                status=status.HTTP_200_OK,
+            )
+
+        # Генерация токена и uid
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        # «Отправка» письма (заглушка)
+        EmailVerificationService.send_password_reset_email(user.email, token, uid)
+
+        return Response(
+            {"detail": "Если пользователь с таким email существует, ему отправлено письмо."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(generics.GenericAPIView):
+    """
+    Подтверждение сброса пароля: установка нового пароля по токену.
+    """
+
+    serializer_class = PasswordResetConfirmSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request, uid, token):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            uid = urlsafe_base64_decode(uid).decode()
+            user = User.objects.get(pk=uid)
+        except (ValueError, User.DoesNotExist):
+            return Response(
+                {"detail": "Неверный токен или пользователь не найден."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not default_token_generator.check_token(user, token):
+            return Response(
+                {"detail": "Токен неверен или истёк."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Установка нового пароля
+        user.set_password(serializer.validated_data["new_password"])
+        user.save()
+
+        return Response(
+            {"detail": "Пароль успешно изменён."},
+            status=status.HTTP_200_OK,
+        )
