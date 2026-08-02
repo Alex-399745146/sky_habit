@@ -1,56 +1,44 @@
 # telegram_bot/models.py
 
-from django.conf import settings
 from django.db import models
+from django.conf import settings
 
 
 class TelegramProfile(models.Model):
-    """
-    Профиль пользователя в Telegram:
-    - связывает пользователя с его telegram_chat_id;
-    - позволяет включать/выключать рассылку.
-    """
+    """Профиль пользователя Telegram"""
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="telegram_profile",
-        verbose_name="Пользователь",
-        help_text="Пользователь, привязанный к этому Telegram-аккаунту.",
+        null=True,
+        blank=True,
+        help_text="Привязанный пользователь Sky Habit",
     )
-
-    telegram_chat_id = models.CharField(
-        max_length=64,
+    telegram_id = models.BigIntegerField(
+        "Telegram ID",
         unique=True,
-        verbose_name="Telegram chat ID",
-        help_text="Уникальный идентификатор чата пользователя в Telegram.",
+        help_text="Telegram user ID",
     )
-
     telegram_username = models.CharField(
+        "Username",
         max_length=255,
         blank=True,
         null=True,
-        verbose_name="Telegram username",
-        help_text="Username пользователя в Telegram (необязательно).",
     )
-
-    is_active = models.BooleanField(
+    notified = models.BooleanField(
+        "Уведомления включены",
         default=True,
-        verbose_name="Активная рассылка",
-        help_text="Если False, уведомления этому пользователю не отправляются.",
     )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="Дата создания",
-        help_text="Дата и время создания профиля Telegram.",
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = "Telegram-профиль"
-        verbose_name_plural = "Telegram-профили"
-        ordering = ["-created_at"]
+        verbose_name = "Telegram профиль"
+        verbose_name_plural = "Telegram профили"
 
     def __str__(self):
-        username_part = f" @{self.telegram_username}" if self.telegram_username else ""
-        return f"Telegram-профиль {self.user.email}{username_part}"
+        username = self.telegram_username or self.telegram_id
+        if self.user:
+            return f"{self.user.email} (@{username})"
+        return f"@{username}"
