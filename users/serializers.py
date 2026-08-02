@@ -1,13 +1,14 @@
 # users/serializers.py
 
-from rest_framework import serializers
-from django.contrib.auth import get_user_model
-from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from pathlib import Path
 import json
 import uuid
 from datetime import timedelta
+from pathlib import Path
+
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMultiAlternatives
+from rest_framework import serializers
 
 User = get_user_model()
 

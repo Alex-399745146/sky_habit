@@ -1,10 +1,11 @@
 # habits/views.py
 
 from rest_framework import generics, permissions
-from .models import Place, Habit
-from .serializers import PlaceSerializer, HabitSerializer
-from .permissions import IsOwnerReadWrite, IsOwnerOrReadOnlyForPlace
+
+from .models import Habit, Place
 from .pagination import HabitPagination
+from .permissions import IsOwnerOrReadOnlyForPlace, IsOwnerReadWrite
+from .serializers import HabitSerializer, PlaceSerializer
 
 
 class PlaceListCreateView(generics.ListCreateAPIView):

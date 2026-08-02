@@ -1,7 +1,8 @@
 # habits/serializers.py
 
 from rest_framework import serializers
-from .models import Place, Habit
+
+from .models import Habit, Place
 
 
 class PlaceSerializer(serializers.ModelSerializer):
@@ -53,25 +54,17 @@ class HabitSerializer(serializers.ModelSerializer):
 
         # 1. Нельзя одновременно reward и linked_habit
         if reward and linked_habit:
-            raise serializers.ValidationError(
-                "Нельзя одновременно указать вознаграждение и связанную привычку."
-            )
+            raise serializers.ValidationError("Нельзя одновременно указать вознаграждение и связанную привычку.")
 
         # 2. У приятной привычки не может быть reward или linked_habit
         if is_pleasant:
             if reward:
-                raise serializers.ValidationError(
-                    "У приятной привычки не может быть вознаграждения."
-                )
+                raise serializers.ValidationError("У приятной привычки не может быть вознаграждения.")
             if linked_habit:
-                raise serializers.ValidationError(
-                    "У приятной привычки не может быть связанной привычки."
-                )
+                raise serializers.ValidationError("У приятной привычки не может быть связанной привычки.")
 
         # 3. linked_habit должна указывать только на приятную привычку
         if linked_habit and not linked_habit.is_pleasant:
-            raise serializers.ValidationError(
-                "Связанная привычка должна быть приятной."
-            )
+            raise serializers.ValidationError("Связанная привычка должна быть приятной.")
 
         return attrs

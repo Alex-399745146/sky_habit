@@ -2,7 +2,8 @@
 
 from django import forms
 from django.contrib import admin
-from .models import Place, Habit
+
+from .models import Habit, Place
 
 
 @admin.register(Place)

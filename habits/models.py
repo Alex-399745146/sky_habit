@@ -1,9 +1,9 @@
 # habits/models.py
 
 from django.conf import settings
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
 
 
 class Place(models.Model):
@@ -164,23 +164,15 @@ class Habit(models.Model):
 
         # 1. Нельзя одновременно reward и linked_habit
         if self.reward and self.linked_habit:
-            raise ValidationError(
-                "Нельзя одновременно указать вознаграждение и связанную привычку."
-            )
+            raise ValidationError("Нельзя одновременно указать вознаграждение и связанную привычку.")
 
         # 2. У приятной привычки не может быть reward или linked_habit
         if self.is_pleasant:
             if self.reward:
-                raise ValidationError(
-                    "У приятной привычки не может быть вознаграждения."
-                )
+                raise ValidationError("У приятной привычки не может быть вознаграждения.")
             if self.linked_habit:
-                raise ValidationError(
-                    "У приятной привычки не может быть связанной привычки."
-                )
+                raise ValidationError("У приятной привычки не может быть связанной привычки.")
 
         # 3. linked_habit должна указывать только на приятную привычку
         if self.linked_habit and not self.linked_habit.is_pleasant:
-            raise ValidationError(
-                "Связанная привычка должна быть приятной."
-            )
+            raise ValidationError("Связанная привычка должна быть приятной.")

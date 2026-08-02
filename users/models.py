@@ -1,7 +1,50 @@
 # users/models.py
 
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class UserManager(BaseUserManager):
+    """Менеджер пользователей с аутентификацией по email."""
+
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError("Email обязателен")
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        """Создание обычного пользователя."""
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+
+        # username делаем необязательным: по умолчанию = email
+        extra_fields.setdefault("username", email)
+
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        """Создание суперпользователя."""
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Суперпользователь должен иметь is_staff=True.")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Суперпользователь должен иметь is_superuser=True.")
+
+        # username по умолчанию = email
+        extra_fields.setdefault("username", email)
+
+        return self._create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -57,7 +100,9 @@ class User(AbstractUser):
 
     # Переопределяем поле для аутентификации и обязательные поля.
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []  # username не обязателен
+    REQUIRED_FIELDS: list[str] = []  # username не обязателен
+
+    objects = UserManager()
 
     class Meta:
         verbose_name = "Пользователь"
