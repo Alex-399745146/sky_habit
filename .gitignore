@@ -214,3 +214,7 @@ __marimo__/
 
 *.pyc
 *.pyo
+/tmp/
+/info.txt
+/test_redis.py
+/ping

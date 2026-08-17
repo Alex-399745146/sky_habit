@@ -88,6 +88,9 @@ DATABASES = {
 }
 
 
+AUTH_USER_MODEL = "users.User"
+
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -123,6 +126,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+        "PAGE_SIZE": 5,
 }
 
 
@@ -134,5 +139,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
+    "http://localhost:3000",
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
 ]
