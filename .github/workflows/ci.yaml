@@ -119,3 +119,57 @@ jobs:
       - name: Build Docker images
         run: |
           docker compose build
+  deploy:
+    name: Deploy to VM
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feature/homework_35_3'
+
+    steps:
+      - name: Deploy application
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          APP_SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          APP_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          APP_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          APP_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SERVER_PORT }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
+          envs: APP_SERVER_HOST,APP_SECRET_KEY,APP_DB_PASSWORD,APP_TELEGRAM_BOT_TOKEN
+          script: |
+            set -eu
+
+            APP_DIR="$HOME/apps/sky_habit"
+            cd "$APP_DIR"
+
+            git pull --ff-only origin feature/homework_35_3
+
+            umask 077
+            cat > .env <<EOF
+            DEBUG=False
+            SECRET_KEY=$APP_SECRET_KEY
+            ALLOWED_HOSTS=$APP_SERVER_HOST
+            CSRF_TRUSTED_ORIGINS=http://$APP_SERVER_HOST
+
+            DB_NAME=sky_habit
+            DB_USER=postgres
+            DB_PASSWORD=$APP_DB_PASSWORD
+            DB_HOST=db
+            DB_PORT=5432
+            DB_HOST_PORT=5433
+
+            REDIS_HOST_PORT=6380
+            CELERY_BROKER_URL=redis://redis:6379/0
+            CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+            TELEGRAM_BOT_TOKEN=$APP_TELEGRAM_BOT_TOKEN
+            EOF
+
+            rm -f celerybeat-schedule-shm celerybeat-schedule-wal
+
+            docker compose up -d --build --remove-orphans
+            docker compose ps
