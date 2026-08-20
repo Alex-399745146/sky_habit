@@ -19,5 +19,6 @@ urlpatterns = [
     path(
         "password-reset-confirm/<str:uid>/<str:token>/",
         PasswordResetConfirmView.as_view(),
-        name="password-reset-confirm"),
+        name="password-reset-confirm",
+    ),
 ]

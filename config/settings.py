@@ -20,7 +20,6 @@ ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0"]
 INSTALLED_APPS = [
     # CORS.
     "corsheaders",
-
     # Django.
     "django.contrib.admin",
     "django.contrib.auth",
@@ -28,17 +27,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # Third-party.
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
-
     # Local apps.
     "users",
     "habits",
     "telegram_bot",
-
 ]
 
 
@@ -124,7 +120,6 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 REST_FRAMEWORK = {
-
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
