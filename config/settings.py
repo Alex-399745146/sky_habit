@@ -18,22 +18,27 @@ ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 
 INSTALLED_APPS = [
-    # CORS безопасный доступ к доменному имени.
+    # CORS.
     "corsheaders",
-    # Стандартные Django приложения.
+
+    # Django.
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # JWT.
+
+    # Third-party.
     "rest_framework",
     "rest_framework_simplejwt",
-    # Мои приложения.
+    "drf_spectacular",
+
+    # Local apps.
     "users",
     "habits",
     "telegram_bot",
+
 ]
 
 
@@ -55,7 +60,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -119,10 +124,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 REST_FRAMEWORK = {
+
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 5,
 }

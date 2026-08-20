@@ -7,10 +7,11 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
     volumes:
       - pg_data:/var/lib/postgresql/data/
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "${DB_HOST_PORT:-5433}:5432"
     healthcheck:
       test:
         [
@@ -24,7 +25,7 @@ services:
   redis:
     image: redis:6-alpine
     ports:
-      - "6380:6379"
+      - "${REDIS_HOST_PORT:-6380}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 3s
@@ -33,13 +34,17 @@ services:
 
   backend:
     build: .
-    env_file:
-      - .env
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DEBUG: ${DEBUG:-True}
+      SECRET_KEY: ${SECRET_KEY}
+      DB_NAME: ${DB_NAME:-sky_habit}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
@@ -70,13 +75,17 @@ services:
 
   celery:
     build: .
-    env_file:
-      - .env
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DEBUG: ${DEBUG:-True}
+      SECRET_KEY: ${SECRET_KEY}
+      DB_NAME: ${DB_NAME:-sky_habit}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
     command: celery -A config.celery_app:app worker -l INFO
     depends_on:
       db:
@@ -86,13 +95,17 @@ services:
 
   celery-beat:
     build: .
-    env_file:
-      - .env
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      DEBUG: ${DEBUG:-True}
+      SECRET_KEY: ${SECRET_KEY}
+      DB_NAME: ${DB_NAME:-sky_habit}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-5432}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
     command: celery -A config.celery_app:app beat -l INFO
     depends_on:
       db:
