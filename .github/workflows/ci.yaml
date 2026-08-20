@@ -109,6 +109,8 @@ jobs:
           DB_PORT=5432
           DB_HOST_PORT=5433
           REDIS_HOST_PORT=6380
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          CSRF_TRUSTED_ORIGINS=
           CELERY_BROKER_URL=redis://redis:6379/0
           CELERY_RESULT_BACKEND=redis://redis:6379/0
           TELEGRAM_BOT_TOKEN=
