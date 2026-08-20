@@ -221,3 +221,4 @@ __marimo__/
 staticfiles/
 media/
 htmlcov/
+celerybeat-schedule*
