@@ -18,10 +18,8 @@ ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0"]
 
 
 INSTALLED_APPS = [
-
     # CORS безопасный доступ к доменному имени.
     "corsheaders",
-
     # Стандартные Django приложения.
     "django.contrib.admin",
     "django.contrib.auth",
@@ -29,16 +27,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # JWT.
     "rest_framework",
     "rest_framework_simplejwt",
-
     # Мои приложения.
     "users",
     "habits",
     "telegram_bot",
-
 ]
 
 
@@ -77,13 +72,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
     }
 }
 
@@ -116,18 +111,20 @@ USE_L10N = False
 USE_TZ = True
 
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-        "PAGE_SIZE": 5,
+    "PAGE_SIZE": 5,
 }
 
 
@@ -143,3 +140,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
 ]
+
+CELERY_BROKER_URL = config(
+    "CELERY_BROKER_URL",
+    default="redis://localhost:6379/0",
+)
+
+CELERY_RESULT_BACKEND = config(
+    "CELERY_RESULT_BACKEND",
+    default="redis://localhost:6379/0",
+)
