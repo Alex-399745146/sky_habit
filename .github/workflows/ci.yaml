@@ -138,7 +138,6 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           port: ${{ secrets.SERVER_PORT }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          passphrase: ${{ secrets.SERVER_SSH_PASSPHRASE }}
           envs: APP_SERVER_HOST,APP_SECRET_KEY,APP_DB_PASSWORD,APP_TELEGRAM_BOT_TOKEN
           script: |
             set -eu
