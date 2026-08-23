@@ -16,5 +16,9 @@ urlpatterns = [
     path("verify/<str:token>/", EmailVerificationView.as_view(), name="verify"),
     # Сброс пароля.
     path("password-reset/", PasswordResetRequestView.as_view(), name="password-reset-request"),
-    path("password-reset-confirm/<uid>/<token>/", PasswordResetConfirmView.as_view(), name="password-reset-confirm"),
+    path(
+        "password-reset-confirm/<str:uid>/<str:token>/",
+        PasswordResetConfirmView.as_view(),
+        name="password-reset-confirm",
+    ),
 ]

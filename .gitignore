@@ -218,3 +218,7 @@ __marimo__/
 /info.txt
 /test_redis.py
 /ping
+staticfiles/
+media/
+htmlcov/
+celerybeat-schedule*

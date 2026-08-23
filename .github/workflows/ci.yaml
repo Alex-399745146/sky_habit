@@ -1,0 +1,174 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quality:
+    name: Tests and linting
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: sky_habit
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d sky_habit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:6-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DEBUG: "True"
+      SECRET_KEY: ci-secret-key
+      DB_NAME: sky_habit
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      CELERY_RESULT_BACKEND: redis://localhost:6379/0
+      TELEGRAM_BOT_TOKEN: ""
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry==2.3.2
+
+      - name: Install dependencies
+        run: |
+          poetry install --with dev --no-root --no-interaction
+
+      - name: Django system check
+        run: |
+          poetry run python manage.py check
+
+      - name: Run tests
+        run: |
+          poetry run pytest
+
+      - name: Run flake8
+        run: |
+          poetry run flake8 .
+
+      - name: Check black formatting
+        run: |
+          poetry run black --check .
+
+      - name: Check isort formatting
+        run: |
+          poetry run isort --check-only .
+
+      - name: Run mypy
+        run: |
+          poetry run mypy .
+
+  docker-build:
+    name: Build Docker images
+    runs-on: ubuntu-latest
+    needs: quality
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Create CI environment file
+        run: |
+          cat > .env <<'EOF'
+          DEBUG=True
+          SECRET_KEY=ci-secret-key
+          DB_NAME=sky_habit
+          DB_USER=postgres
+          DB_PASSWORD=postgres
+          DB_HOST=db
+          DB_PORT=5432
+          DB_HOST_PORT=5433
+          REDIS_HOST_PORT=6380
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          CSRF_TRUSTED_ORIGINS=
+          CELERY_BROKER_URL=redis://redis:6379/0
+          CELERY_RESULT_BACKEND=redis://redis:6379/0
+          TELEGRAM_BOT_TOKEN=
+          EOF
+
+      - name: Build Docker images
+        run: |
+          docker compose build
+  deploy:
+    name: Deploy to VM
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/feature/homework_35_3'
+
+    steps:
+      - name: Deploy application
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          APP_SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          APP_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          APP_DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          APP_TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SERVER_PORT }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          envs: APP_SERVER_HOST,APP_SECRET_KEY,APP_DB_PASSWORD,APP_TELEGRAM_BOT_TOKEN
+          script: |
+            set -eu
+
+            APP_DIR="$HOME/apps/sky_habit"
+            cd "$APP_DIR"
+
+            git pull --ff-only origin feature/homework_35_3
+
+            umask 077
+            cat > .env <<EOF
+            DEBUG=False
+            SECRET_KEY=$APP_SECRET_KEY
+            ALLOWED_HOSTS=$APP_SERVER_HOST
+            CSRF_TRUSTED_ORIGINS=http://$APP_SERVER_HOST
+
+            DB_NAME=sky_habit
+            DB_USER=postgres
+            DB_PASSWORD=$APP_DB_PASSWORD
+            DB_HOST=db
+            DB_PORT=5432
+            DB_HOST_PORT=5433
+
+            REDIS_HOST_PORT=6380
+            CELERY_BROKER_URL=redis://redis:6379/0
+            CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+            TELEGRAM_BOT_TOKEN=$APP_TELEGRAM_BOT_TOKEN
+            EOF
+
+            rm -f celerybeat-schedule-shm celerybeat-schedule-wal
+
+            docker compose up -d --build --remove-orphans
+            docker compose ps
