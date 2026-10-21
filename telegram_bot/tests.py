@@ -22,6 +22,11 @@ from telegram_bot.tasks import (
 User = get_user_model()
 
 
+@pytest.fixture(autouse=True)
+def telegram_bot_settings(settings):
+    settings.TELEGRAM_BOT_TOKEN = "test-token"
+
+
 @pytest.fixture
 def user(db):
     """Создание тестового пользователя."""
@@ -38,7 +43,7 @@ def user(db):
 def telegram_profile(db, user):
     """Создание Telegram профиля."""
     return TelegramProfile.objects.create(
-        user=user, telegram_id=123456789, telegram_username="testuser", notified=True
+        user=user, telegram_chat_id=123456789, telegram_username="testuser", is_active=True
     )
 
 
@@ -70,28 +75,41 @@ class TestTelegramProfileModel:
         """Тест создания Telegram профиля."""
         user = User.objects.create_user(username="profileuser", email="profile@example.com", password="testpass123")
         profile = TelegramProfile.objects.create(
-            user=user, telegram_id=987654321, telegram_username="newuser", notified=False
+            user=user, telegram_chat_id=987654321, telegram_username="newuser", is_active=False
         )
-        assert profile.telegram_id == 987654321
+        assert profile.telegram_chat_id == 987654321
         assert profile.telegram_username == "newuser"
-        assert profile.notified is False
+        assert profile.is_active is False
         assert profile.user == user
 
     def test_telegram_profile_str_with_user(self, db):
         """Тест строкового представления с пользователем."""
-        user = User.objects.create_user(username="struser", email="struser@example.com", password="testpass123")
-        profile = TelegramProfile.objects.create(user=user, telegram_id=111222333, telegram_username="withuser")
-        assert str(profile) == "struser@example.com (@withuser)"
+        user = User.objects.create_user(
+            username="struser",
+            email="struser@example.com",
+            password="testpass123",
+        )
+        profile = TelegramProfile.objects.create(
+            user=user,
+            telegram_chat_id=111222333,
+            telegram_username="withuser",
+        )
+        assert str(profile) == "Telegram-профиль struser@example.com @withuser"
 
     def test_telegram_profile_str_without_user(self, db):
         """Тест строкового представления без пользователя."""
-        profile = TelegramProfile.objects.create(telegram_id=444555666, telegram_username="nouser")
-        assert str(profile) == "@nouser"
+        profile = TelegramProfile.objects.create(
+            telegram_chat_id=444555666,
+            telegram_username="nouser",
+        )
+        assert str(profile) == "Telegram-профиль не привязан @nouser"
 
     def test_telegram_profile_str_no_username(self, db):
         """Тест строкового представления без username."""
-        profile = TelegramProfile.objects.create(telegram_id=777888999)
-        assert str(profile) == "@777888999"
+        profile = TelegramProfile.objects.create(
+            telegram_chat_id=777888999,
+        )
+        assert str(profile) == "Telegram-профиль не привязан"
 
 
 class TestSendDailyReminders:

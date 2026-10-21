@@ -11,34 +11,47 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = config("DEBUG", default=False, cast=bool)
 
 
-ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0"]
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in config(
+        "ALLOWED_HOSTS",
+        default="localhost,127.0.0.1",
+    ).split(",")
+    if host.strip()
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in config(
+        "CSRF_TRUSTED_ORIGINS",
+        default="",
+    ).split(",")
+    if origin.strip()
+]
 
 
 INSTALLED_APPS = [
-
-    # CORS безопасный доступ к доменному имени.
+    # CORS.
     "corsheaders",
-
-    # Стандартные Django приложения.
+    # Django.
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    # JWT.
+    # Third-party.
     "rest_framework",
     "rest_framework_simplejwt",
-
-    # Мои приложения.
+    "drf_spectacular",
+    # Local apps.
     "users",
     "habits",
     "telegram_bot",
-
 ]
 
 
@@ -60,7 +73,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -77,13 +90,13 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
     }
 }
 
@@ -116,18 +129,21 @@ USE_L10N = False
 USE_TZ = True
 
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-        "PAGE_SIZE": 5,
+    "PAGE_SIZE": 5,
 }
 
 
@@ -143,3 +159,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
 ]
+
+CELERY_BROKER_URL = config(
+    "CELERY_BROKER_URL",
+    default="redis://localhost:6379/0",
+)
+
+CELERY_RESULT_BACKEND = config(
+    "CELERY_RESULT_BACKEND",
+    default="redis://localhost:6379/0",
+)

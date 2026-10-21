@@ -1,11 +1,17 @@
 # telegram_bot/tasks.py
 
+import asyncio
+import logging
+
 from celery import shared_task
 from django.conf import settings
+from django.utils import timezone
 from telegram import Bot
 
+from habits.models import Habit
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task
 def send_daily_reminders():
@@ -14,7 +20,7 @@ def send_daily_reminders():
     now = timezone.localtime()
     current_time = now.time().replace(second=0, microsecond=0)
 
-    habits = Habit.objects.filter(owner__telegram_profile__notified=True)
+    habits = Habit.objects.filter(owner__telegram_profile__is_active=True)
 
     print(f"[CELERY] Checking habits for time {current_time.strftime('%H:%M')}")
 
@@ -23,16 +29,19 @@ def send_daily_reminders():
         if not habit_time:
             continue
 
+        habit_time_clean = habit_time.replace(second=0, microsecond=0)
 
         if habit_time_clean == current_time:
             print(f"[CELERY] Sending notification for habit {habit.id} ({habit.action}) at {current_time}")
             send_telegram_notification.delay(habit.id)
+
 
 @shared_task
 def send_telegram_notification(habit_id):
     """Отправка уведомления в Telegram"""
 
     try:
+        habit = Habit.objects.get(id=habit_id)
     except Habit.DoesNotExist:
         logger.warning(f"Habit {habit_id} not found")
         return
@@ -42,7 +51,7 @@ def send_telegram_notification(habit_id):
         return
 
     profile = habit.owner.telegram_profile
-    if not profile.notified:
+    if not profile.is_active:
         logger.info(f"Notifications disabled for user {profile.user.email}")
         return
 
@@ -60,7 +69,7 @@ def send_telegram_notification(habit_id):
     )
 
     # Отправляем через бота.
-    send_telegram_message.delay(profile.telegram_id, message)
+    send_telegram_message.delay(profile.telegram_chat_id, message)
     logger.info(f"Notification sent for habit {habit_id}")
 
 
