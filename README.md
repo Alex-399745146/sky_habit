@@ -119,6 +119,8 @@ docker compose exec backend python manage.py createsuperuser
 
 ## API
 
+Корень `/` перенаправляет на Swagger UI.
+
 | Маршрут | Назначение |
 |---|---|
 | `GET /api/schema/` | OpenAPI-схема |

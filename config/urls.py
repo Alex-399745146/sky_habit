@@ -2,6 +2,7 @@
 
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -9,6 +10,8 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
+    # Корень ведёт на документацию API.
+    path("", RedirectView.as_view(pattern_name="swagger-ui", permanent=False), name="home"),
     path("admin/", admin.site.urls),
     # JWT токены.
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
