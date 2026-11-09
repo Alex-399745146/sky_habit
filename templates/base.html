@@ -51,29 +51,29 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link {% if request.resolver_match.view_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                Главная
+                <i class="bi bi-house-door"></i> Главная
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:public-list' %}active{% endif %}" href="{% url 'habits_web:public-list' %}">
-                Публичные
+                <i class="bi bi-broadcast"></i> Публичные
               </a>
             </li>
             {% if user.is_authenticated %}
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:list' %}active{% endif %}" href="{% url 'habits_web:list' %}">
-                  Мои привычки
+                  <i class="bi bi-list-check"></i> Мои привычки
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:place-list' or request.resolver_match.view_name == 'habits_web:place-create' or request.resolver_match.view_name == 'habits_web:place-edit' or request.resolver_match.view_name == 'habits_web:place-delete' %}active{% endif %}" href="{% url 'habits_web:place-list' %}">
-                  Места
+                  <i class="bi bi-geo-alt"></i> Места
                 </a>
               </li>
             {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'swagger-ui' %}" target="_blank" rel="noopener">
-                API <i class="bi bi-box-arrow-up-right small"></i>
+                <i class="bi bi-braces"></i> API <i class="bi bi-box-arrow-up-right small"></i>
               </a>
             </li>
           </ul>
@@ -88,17 +88,21 @@
               <li class="nav-item">
                 <form method="post" action="{% url 'users_web:logout' %}">
                   {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-matrix w-100">Выход</button>
+                  <button type="submit" class="btn btn-sm btn-outline-matrix w-100">
+                    <i class="bi bi-box-arrow-right"></i> Выход
+                  </button>
                 </form>
               </li>
             {% else %}
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.view_name == 'users_web:login' %}active{% endif %}" href="{% url 'users_web:login' %}">
-                  Вход
+                  <i class="bi bi-box-arrow-in-right"></i> Вход
                 </a>
               </li>
               <li class="nav-item">
-                <a class="btn btn-sm btn-matrix w-100" href="{% url 'users_web:register' %}">Регистрация</a>
+                <a class="btn btn-sm btn-matrix w-100" href="{% url 'users_web:register' %}">
+                  <i class="bi bi-person-plus"></i> Регистрация
+                </a>
               </li>
             {% endif %}
           </ul>
@@ -115,9 +119,9 @@
       <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
         <span>&gt;_ sky_habit · Django + DRF · MIT</span>
         <span class="d-flex gap-3">
-          <a href="{% url 'swagger-ui' %}">Swagger</a>
-          <a href="{% url 'redoc' %}">ReDoc</a>
-          <a href="/admin/">Admin</a>
+          <a href="{% url 'swagger-ui' %}"><i class="bi bi-braces"></i> Swagger</a>
+          <a href="{% url 'redoc' %}"><i class="bi bi-file-text"></i> ReDoc</a>
+          <a href="/admin/"><i class="bi bi-speedometer2"></i> Admin</a>
         </span>
       </div>
     </footer>

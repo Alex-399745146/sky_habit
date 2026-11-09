@@ -41,17 +41,25 @@ Backend и веб-интерфейс трекера привычек на Django
 
 ## Скриншоты
 
-| Swagger UI | ReDoc |
-|---|---|
-| ![Swagger UI](docs/screenshots/swagger.png) | ![ReDoc](docs/screenshots/redoc.png) |
+### Веб-интерфейс
 
-| Админка | Публичные привычки (API) |
-|---|---|
-| ![Админка Django](docs/screenshots/admin-habits.png) | ![Публичные привычки](docs/screenshots/api-public-habits.png) |
+![Главная страница](docs/screenshots/ui-home.png)
 
-| Веб-интерфейс | Мои привычки |
-|---|---|
-| ![Главная страница](docs/screenshots/ui-home.png) | ![Мои привычки](docs/screenshots/ui-habits.png) |
+![Мои привычки](docs/screenshots/ui-habits.png)
+
+![Форма привычки](docs/screenshots/ui-habit-form.png)
+
+![Профиль и Telegram-настройки](docs/screenshots/ui-profile.png)
+
+### API и админка
+
+![Swagger UI](docs/screenshots/swagger.png)
+
+![ReDoc](docs/screenshots/redoc.png)
+
+![Админка Django](docs/screenshots/admin-habits.png)
+
+![Публичные привычки в API](docs/screenshots/api-public-habits.png)
 
 ## Быстрый старт
 

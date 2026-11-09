@@ -106,18 +106,40 @@ h6 {
 }
 
 .navbar-matrix .nav-link {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding-inline: 0.55rem;
   color: var(--matrix-muted);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.12em;
   border-bottom: 1px solid transparent;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.navbar-matrix .nav-link i {
+  color: var(--matrix-green-dim);
+  font-size: 0.95rem;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
 
 .navbar-matrix .nav-link:hover,
 .navbar-matrix .nav-link.active {
   color: var(--matrix-green);
   text-shadow: var(--matrix-glow);
+  background: rgba(0, 255, 102, 0.04);
   border-bottom-color: var(--matrix-green);
+}
+
+.navbar-matrix .nav-link:hover i,
+.navbar-matrix .nav-link.active i {
+  color: var(--matrix-green);
+  text-shadow: var(--matrix-glow);
+}
+
+.navbar-matrix .btn i {
+  margin-right: 0.15rem;
 }
 
 .navbar-toggler {
