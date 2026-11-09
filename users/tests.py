@@ -174,9 +174,15 @@ class TestEmailVerificationService:
         assert len(mailoutbox) == 1
 
         message = mailoutbox[0]
+        verify_url = f"http://testserver/verify/{token.token}/"
         assert user.email in message.to
-        assert token.token in message.body
-        assert f"http://testserver/verify/{token.token}/" in message.body
+        assert verify_url in message.body
+
+        html_body = next(content for content, mimetype in message.alternatives if mimetype == "text/html")
+        assert "WHITE RABBIT PROTOCOL" in html_body
+        assert "ПРИНЯТЬ КРАСНУЮ ТАБЛЕТКУ" in html_body
+        assert verify_url in html_body
+        assert token.token[:8].upper() in html_body
 
     def test_verify_marks_email_confirmed(self, user):
         """Токен подтверждает email и удаляется после использования."""

@@ -7,7 +7,8 @@ from typing import cast
 from urllib.parse import urljoin
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 
@@ -46,20 +47,32 @@ class EmailVerificationService:
         token = cls.issue_verification_token(user)
         verify_url = cls.build_verification_url(token.token, request=request, base_url=base_url)
 
-        subject = "Подтверждение email — Sky Habit"
-        message = (
+        subject = "🐇 Подтвердите email — Sky Habit"
+        text_body = (
             "Здравствуйте!\n\n"
             "Вы зарегистрировались в Sky Habit.\n"
             f"Подтвердите email по ссылке (действует 24 часа):\n{verify_url}\n\n"
-            "Если вы не регистрировались, просто проигнорируйте это письмо.\n"
+            "Если вы не регистрировались, просто проигнорируйте это письмо.\n\n"
+            "-- \n"
+            ">_ sky_habit · Django + DRF · Matrix protocol\n"
         )
-        send_mail(
+        html_body = render_to_string(
+            "users/emails/verification.html",
+            {
+                "email": user.email,
+                "verify_url": verify_url,
+                "card_id": token.token[:8].upper(),
+            },
+        )
+
+        message = EmailMultiAlternatives(
             subject,
-            message,
+            text_body,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
-            fail_silently=False,
         )
+        message.attach_alternative(html_body, "text/html")
+        message.send(fail_silently=False)
         return token
 
     @staticmethod

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <title>Подтверждение email — Sky Habit</title>
+    <style>
+      @media (max-width: 600px) {
+        .container { width: 100% !important; }
+        .p-32 { padding-left: 20px !important; padding-right: 20px !important; }
+        .h1 { font-size: 26px !important; }
+        .btn { display: block !important; padding-left: 12px !important; padding-right: 12px !important; }
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #050805;">
+    <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+      Ваш доступ к Sky Habit почти активирован. Осталось подтвердить email.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#050805">
+      <tr>
+        <td align="center" style="padding: 32px 12px;">
+          <table
+            role="presentation"
+            class="container"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
+            style="width: 600px; max-width: 600px; background-color: #07120b; border: 1px solid #0f7a3a; border-radius: 14px; overflow: hidden;"
+          >
+            <tr>
+              <td
+                class="p-32"
+                style="padding: 18px 32px; border-bottom: 1px solid #0f7a3a; background-color: #040a06; font-family: 'Courier New', Courier, monospace; font-size: 12px; letter-spacing: 2px; color: #00ff66;"
+              >
+                SKY_HABIT // WHITE RABBIT PROTOCOL
+                <span style="float: right; color: #3f7a58;">SECURE CHANNEL</span>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="p-32" style="padding: 36px 32px 8px;">
+                <div style="font-size: 42px; line-height: 1;">🐇</div>
+                <div style="margin-top: 16px; font-family: 'Courier New', Courier, monospace; font-size: 12px; letter-spacing: 3px; color: #00ff66;">
+                  ACCESS CARD · 001
+                </div>
+                <h1
+                  class="h1"
+                  style="margin: 8px 0 0; font-family: 'Courier New', Courier, monospace; font-size: 32px; line-height: 1.15; color: #eafff1;"
+                >
+                  Подтвердите<br>
+                  <span style="color: #00ff66;">доступ</span>
+                </h1>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                class="p-32"
+                style="padding: 16px 32px 0; font-family: 'Courier New', Courier, monospace; font-size: 15px; line-height: 1.6; color: #b7ffd2;"
+              >
+                <p style="margin: 0 0 12px;">Здравствуйте!</p>
+                <p style="margin: 0 0 12px;">
+                  Кто-то (надеемся, вы) запросил доступ к <strong style="color: #eafff1;">Sky Habit</strong>
+                  с адресом <strong style="color: #eafff1;">{{ email }}</strong>.
+                </p>
+                <p style="margin: 0;">
+                  Осталось принять красную таблетку — и кроличья нора ваша.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="p-32" style="padding: 24px 32px 0;">
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellpadding="0"
+                  cellspacing="0"
+                  border="0"
+                  style="background-color: #040a06; border-left: 3px solid #00ff66;"
+                >
+                  <tr>
+                    <td
+                      style="padding: 14px 16px; font-family: 'Courier New', Courier, monospace; font-size: 13px; line-height: 1.5; color: #6fae86; font-style: italic;"
+                    >
+                      «Синяя таблетка — проснуться в своей постели. Красная — узнать, насколько глубока кроличья нора».
+                      <div style="margin-top: 6px; color: #3f7a58; font-style: normal;">— Морфеус, 1999</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="p-32" align="center" style="padding: 32px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td align="center" bgcolor="#e11d2e" style="border-radius: 8px;">
+                      <a
+                        class="btn"
+                        href="{{ verify_url }}"
+                        target="_blank"
+                        style="display: inline-block; padding: 16px 28px; font-family: 'Courier New', Courier, monospace; font-size: 15px; font-weight: bold; letter-spacing: 1px; color: #ffffff; text-decoration: none;"
+                      >
+                        💊 ПРИНЯТЬ КРАСНУЮ ТАБЛЕТКУ
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+                <div style="margin-top: 14px; font-family: 'Courier New', Courier, monospace; font-size: 12px; color: #6fae86;">
+                  Ссылка действует 24 часа · одноразовая
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                class="p-32"
+                style="padding: 0 32px 8px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.6; color: #6fae86;"
+              >
+                Если кнопка не работает, скопируйте ссылку:<br>
+                <a href="{{ verify_url }}" style="color: #00ff66; word-break: break-all;">{{ verify_url }}</a>
+              </td>
+            </tr>
+
+            <tr>
+              <td class="p-32" style="padding: 8px 32px 28px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 1px dashed #0f7a3a;">
+                  <tr>
+                    <td style="padding-top: 14px; font-family: 'Courier New', Courier, monospace; font-size: 11px; letter-spacing: 1px; color: #3f7a58;">
+                      CARD ID<br>
+                      <span style="color: #b7ffd2;">{{ card_id }}</span>
+                    </td>
+                    <td align="right" style="padding-top: 14px; font-family: 'Courier New', Courier, monospace; font-size: 11px; letter-spacing: 1px; color: #3f7a58;">
+                      STATUS<br>
+                      <span style="color: #ffcc00;">PENDING</span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td
+                style="padding: 20px 32px; border-top: 1px solid #0f7a3a; background-color: #040a06; font-family: 'Courier New', Courier, monospace; font-size: 11px; line-height: 1.6; color: #3f7a58;"
+              >
+                Если вы не регистрировались в Sky Habit, просто проигнорируйте письмо — доступ не будет активирован.<br>
+                <span style="color: #00ff66;">&gt;_ sky_habit</span> · Django + DRF · Matrix protocol
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

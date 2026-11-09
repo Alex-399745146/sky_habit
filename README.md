@@ -52,6 +52,13 @@ Backend и веб-интерфейс трекера привычек на Django
 
 ![Профиль и Telegram-настройки](docs/screenshots/ui-profile.png)
 
+### Email
+
+HTML-письмо подтверждения в стиле Matrix — «карта доступа» с белым кроликом
+и красной таблеткой. Для клиентов без HTML предусмотрена текстовая версия.
+
+![Письмо подтверждения email](docs/screenshots/email-verification.png)
+
 ### API и админка
 
 ![Swagger UI](docs/screenshots/swagger.png)
