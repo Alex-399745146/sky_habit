@@ -87,15 +87,28 @@ docker compose down -v       # контейнеры и данные PostgreSQL
 
 > `docker compose down -v` удаляет данные базы. Используйте только если они больше не нужны.
 
-### 4. Запуск без Docker (только тесты)
+### 4. Локальный запуск без Docker
+
+Для разработки без Docker и PostgreSQL есть отдельные настройки на SQLite:
 
 ```bash
 poetry install --with dev
+poetry run python manage.py migrate --settings=config.settings_local
+poetry run python manage.py createsuperuser --settings=config.settings_local
+poetry run python manage.py runserver --settings=config.settings_local
+```
+
+`config.settings_local.py` использует файл `db_local.sqlite3`, eager-режим Celery
+и выводит письма в консоль. Docker, PostgreSQL и Redis не нужны.
+
+Тесты без Docker:
+
+```bash
 poetry run pytest --ds=config.settings_test
 ```
 
-`config.settings_test.py` использует SQLite в памяти, eager-режим Celery
-и не требует PostgreSQL, Redis или Docker.
+`config.settings_test.py` использует SQLite в памяти и не требует PostgreSQL,
+Redis или Docker.
 
 ### 5. Миграции и суперпользователь
 
