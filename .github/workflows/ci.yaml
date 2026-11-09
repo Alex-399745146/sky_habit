@@ -135,9 +135,10 @@ jobs:
           SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           missing=""
-          for name in SERVER_HOST SERVER_USER SERVER_PORT SERVER_SSH_KEY SECRET_KEY DB_PASSWORD; do
+          for name in SERVER_HOST SERVER_USER SERVER_PORT SERVER_SSH_KEY SECRET_KEY DB_PASSWORD TELEGRAM_BOT_TOKEN; do
             if [ -z "${!name}" ]; then
               missing="$missing $name"
             fi

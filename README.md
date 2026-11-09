@@ -51,8 +51,13 @@ cd sky_habit
 cp .env.example .env
 ```
 
-Шаблон `.env.example` содержит рабочие локальные значения. При необходимости
-измените пароль PostgreSQL и `SECRET_KEY`. Файл `.env` не должен попадать в Git.
+Шаблон `.env.example` содержит рабочие значения для запуска через Docker Compose.
+При необходимости измените пароль PostgreSQL и `SECRET_KEY`. Файл `.env` не должен
+попадать в Git.
+
+> Если вы запускаете Django и Celery на хосте, а PostgreSQL и Redis — в Docker,
+> замените `DB_HOST=db` на `localhost`, `DB_PORT=5432` на `5433`,
+> а адреса `redis://redis:6379/0` — на `redis://localhost:6380/0`.
 
 ### 3. Запуск в Docker
 
