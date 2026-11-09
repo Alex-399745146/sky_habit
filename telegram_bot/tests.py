@@ -175,10 +175,30 @@ class TestHabitCardService:
         """Карточка содержит основные данные привычки."""
         card = build_habit_card(habit)
 
-        assert "SKY HABIT // CARD" in card
+        assert "Мистер Test" in card
+        assert "SKY HABIT // CARD" not in card
         assert habit.action in card
         assert "Дом" in card
         assert habit.time.strftime("%H:%M") in card
+
+    def test_build_habit_card_falls_back_to_username(self, user, place):
+        """Если имя не заполнено, используется username."""
+        user.first_name = ""
+        user.last_name = ""
+        user.username = "neo"
+        user.save()
+        habit = Habit.objects.create(
+            owner=user,
+            place=place,
+            time=time(9, 0),
+            action="Проснуться",
+            frequency=1,
+            time_to_complete=30,
+        )
+
+        card = build_habit_card(habit)
+
+        assert "Мистер neo" in card
 
     def test_build_habit_card_escapes_html(self, user, place):
         """Пользовательский текст экранируется для HTML parse_mode."""

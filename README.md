@@ -293,7 +293,7 @@ docker compose up -d db redis
 poetry run pytest
 ```
 
-Текущее состояние: **82 теста, покрытие 88%** (измерено `pytest-cov`).
+Текущее состояние: **83 теста, покрытие 88%** (измерено `pytest-cov`).
 Тесты находятся в `habits/tests.py`, `users/tests.py` и `telegram_bot/tests.py`.
 
 ## Линтеры и типы
