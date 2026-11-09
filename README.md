@@ -36,6 +36,16 @@ Backend трекера привычек на Django REST Framework с JWT-аут
 - Swagger UI, ReDoc и OpenAPI-схема.
 - Автотесты, линтеры, проверка типов и сборка Docker-образов в CI.
 
+## Скриншоты
+
+| Swagger UI | ReDoc |
+|---|---|
+| ![Swagger UI](docs/screenshots/swagger.png) | ![ReDoc](docs/screenshots/redoc.png) |
+
+| Админка | Публичные привычки (API) |
+|---|---|
+| ![Админка Django](docs/screenshots/admin-habits.png) | ![Публичные привычки](docs/screenshots/api-public-habits.png) |
+
 ## Быстрый старт
 
 ### 1. Клонирование
@@ -224,6 +234,7 @@ sky_habit/
 ├── habits/              # привычки, места, права, сериализаторы
 ├── telegram_bot/        # бот, профили и задачи напоминаний
 ├── tests/               # общие тестовые пакеты
+├── docs/screenshots/    # скриншоты Swagger, ReDoc и админки
 ├── .github/workflows/   # CI и ручной деплой
 ├── docker-compose.yaml
 └── pyproject.toml

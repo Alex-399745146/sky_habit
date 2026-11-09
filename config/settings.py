@@ -153,6 +153,18 @@ SIMPLE_JWT = {
 }
 
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Sky Habit API",
+    "DESCRIPTION": "API трекера привычек: JWT-аутентификация, привычки, места, Telegram-напоминания.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # Версии CDN закреплены: redoc@latest (3.x) собран как ES-модуль и не работает
+    # при подключении обычным <script>.
+    "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14",
+    "REDOC_DIST": "https://cdn.jsdelivr.net/npm/redoc@2.5.0",
+}
+
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:3000",
