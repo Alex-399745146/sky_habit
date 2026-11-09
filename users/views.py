@@ -1,10 +1,7 @@
 # users/views.py
 
-import json
-import uuid
-from pathlib import Path
+import logging
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
@@ -16,11 +13,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import (
-    EmailVerificationService,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
     UserRegistrationSerializer,
 )
+from .services import EmailVerificationService
+
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -39,17 +38,15 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Генерация токена верификации
-        token = str(uuid.uuid4())
+        try:
+            EmailVerificationService.send_verification_email(user, request=request)
+        except Exception:
+            logger.exception("Не удалось отправить письмо подтверждения для %s", user.email)
+            detail = "Пользователь зарегистрирован, но письмо не удалось отправить. Проверьте настройки почты."
+        else:
+            detail = "Пользователь зарегистрирован. Проверьте email и подтвердите адрес."
 
-        # Сохранение токена в БД (можно в отдельной модели, пока просто в памяти или кэше)
-        # Для простоты — просто отправляем «письмо»
-        EmailVerificationService.send_verification_email(user.email, token)
-
-        return Response(
-            {"detail": "Пользователь зарегистрирован. Проверьте tmp/emails/ для токена верификации."},
-            status=status.HTTP_201_CREATED,
-        )
+        return Response({"detail": detail}, status=status.HTTP_201_CREATED)
 
 
 class EmailVerificationView(APIView):
@@ -71,21 +68,9 @@ class EmailVerificationView(APIView):
         },
     )
     def get(self, request, token):
-        tmp_dir = Path(settings.BASE_DIR) / "tmp" / "emails"
-        found = False
+        user = EmailVerificationService.verify(token)
 
-        for file_path in tmp_dir.glob("verify_*.json"):
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-
-            if data.get("token") == token:
-                user = User.objects.get(email=data["email"])
-                user.is_verified = True
-                user.save()
-                found = True
-                break
-
-        if not found:
+        if user is None:
             return Response(
                 {"detail": "Токен не найден или истёк."},
                 status=status.HTTP_400_BAD_REQUEST,

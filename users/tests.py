@@ -5,19 +5,21 @@
 """
 
 import json
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient
 
-from users.models import User
+from users.models import EmailVerificationToken, User
 from users.serializers import (
-    EmailVerificationService,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
     UserRegistrationSerializer,
 )
+from users.services import EmailVerificationService
 
 UserModel = get_user_model()
 
@@ -157,22 +159,53 @@ class TestPasswordResetSerializers:
         assert not serializer.is_valid()
 
 
+@pytest.mark.django_db
 class TestEmailVerificationService:
     """Тесты сервиса верификации email."""
 
-    def test_send_verification_email(self):
-        """Тест отправки письма верификации."""
+    def test_send_verification_email(self, user, mailoutbox):
+        """Письмо создаёт токен в БД и содержит ссылку подтверждения."""
 
-        file_path = EmailVerificationService.send_verification_email("verify@example.com", "test-token-123")
+        token = EmailVerificationService.send_verification_email(user, base_url="http://testserver")
 
-        assert file_path.exists()
+        assert EmailVerificationToken.objects.filter(user=user).count() == 1
+        assert token.user == user
+        assert token.is_expired is False
+        assert len(mailoutbox) == 1
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        message = mailoutbox[0]
+        assert user.email in message.to
+        assert token.token in message.body
+        assert f"http://testserver/verify/{token.token}/" in message.body
 
-        assert data["email"] == "verify@example.com"
-        assert data["token"] == "test-token-123"
-        assert data["type"] == "verification"
+    def test_verify_marks_email_confirmed(self, user):
+        """Токен подтверждает email и удаляется после использования."""
+
+        token = EmailVerificationService.issue_verification_token(user)
+
+        verified_user = EmailVerificationService.verify(token.token)
+
+        user.refresh_from_db()
+        assert verified_user == user
+        assert user.is_verified is True
+        assert not EmailVerificationToken.objects.filter(pk=token.pk).exists()
+
+    def test_verify_expired_token(self, user):
+        """Истёкший токен не подтверждает email."""
+
+        token = EmailVerificationService.issue_verification_token(user)
+        token.expires_at = timezone.now() - timedelta(minutes=1)
+        token.save(update_fields=["expires_at"])
+
+        assert EmailVerificationService.verify(token.token) is None
+
+        user.refresh_from_db()
+        assert user.is_verified is False
+
+    def test_verify_unknown_token(self):
+        """Неизвестный токен возвращает None."""
+
+        assert EmailVerificationService.verify("unknown-token") is None
 
     def test_send_password_reset_email(self):
         """Тест отправки письма сброса пароля."""
@@ -196,7 +229,7 @@ class TestEmailVerificationService:
 class TestUserRegistrationAPI:
     """Интеграционные тесты API пользователей."""
 
-    def test_register_user(self, api_client):
+    def test_register_user(self, api_client, mailoutbox):
         """Тест регистрации пользователя через API."""
         data = {
             "email": "api-register@example.com",
@@ -206,8 +239,12 @@ class TestUserRegistrationAPI:
         }
 
         response = api_client.post("/api/users/register/", data)
+
         assert response.status_code == 201
         assert "Пользователь зарегистрирован" in response.data["detail"]
+        assert len(mailoutbox) == 1
+        assert "api-register@example.com" in mailoutbox[0].to
+        assert EmailVerificationToken.objects.filter(user__email="api-register@example.com").exists()
 
     def test_register_duplicate_email(self, api_client, user):
         """Тест регистрации с существующим email."""
@@ -216,46 +253,27 @@ class TestUserRegistrationAPI:
         response = api_client.post("/api/users/register/", data)
         assert response.status_code == 400
 
-    def test_email_verification(
-        self,
-        api_client,
-        db,
-        settings,
-        tmp_path,
-    ):
-        """Тест верификации email."""
-
-        # Используем временную папку, чтобы тест не создавал файлы
-        # в настоящем tmp/emails проекта.
-        settings.BASE_DIR = tmp_path
+    def test_email_verification(self, api_client, db):
+        """Тест верификации email по токену из БД."""
 
         user = UserModel.objects.create_user(
             username="verifyuser",
             email="verify-api@example.com",
             password="test-password-123",
         )
+        token = EmailVerificationService.issue_verification_token(user)
 
-        verification_token = "api-verify-token"
-
-        # Создаём тот самый файл, который затем ищет endpoint.
-        EmailVerificationService.send_verification_email(
-            user.email,
-            verification_token,
-        )
-
-        response = api_client.get(
-            f"/api/users/verify/{verification_token}/",
-        )
+        response = api_client.get(f"/api/users/verify/{token.token}/")
 
         assert response.status_code == 200
+        assert "Email успешно подтверждён" in response.data["detail"]
 
         user.refresh_from_db()
         assert user.is_verified is True
 
-        # Верифицируем
-        response = api_client.get("/api/users/verify/api-verify-token/")
-        assert response.status_code == 200
-        assert "Email успешно подтверждён" in response.data["detail"]
+        # Токен одноразовый.
+        response = api_client.get(f"/api/users/verify/{token.token}/")
+        assert response.status_code == 400
 
     def test_email_verification_invalid_token(self, api_client):
         """Тест верификации с невалидным токеном."""

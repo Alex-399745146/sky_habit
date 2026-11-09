@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from habits.models import Habit, Place
 from telegram_bot.models import TelegramProfile
+from users.services import EmailVerificationService
 
 User = get_user_model()
 
@@ -74,7 +75,7 @@ def test_my_habits_requires_login(client):
     assert reverse("users_web:login") in response.url
 
 
-def test_register_creates_user_and_logs_in(client):
+def test_register_creates_user_and_sends_email(client, mailoutbox):
     response = client.post(
         reverse("users_web:register"),
         {
@@ -90,7 +91,35 @@ def test_register_creates_user_and_logs_in(client):
     assert response.status_code == 302
     assert created.username == "new@example.com"
     assert created.is_verified is False
+    assert len(mailoutbox) == 1
+    assert "new@example.com" in mailoutbox[0].to
+    assert "/verify/" in mailoutbox[0].body
     assert client.get(reverse("users_web:profile")).status_code == 200
+
+
+def test_verify_email_link(client, user):
+    token = EmailVerificationService.issue_verification_token(user)
+
+    response = client.get(reverse("users_web:verify", args=[token.token]))
+
+    user.refresh_from_db()
+    assert response.status_code == 302
+    assert user.is_verified is True
+
+
+def test_resend_verification_email(auth_client, user, mailoutbox):
+    response = auth_client.post(reverse("users_web:resend-verification"))
+
+    assert response.status_code == 302
+    assert len(mailoutbox) == 1
+    assert "/verify/" in mailoutbox[0].body
+
+
+def test_invalid_verify_email_link(client):
+    response = client.get(reverse("users_web:verify", args=["bad-token"]), follow=True)
+
+    assert response.status_code == 200
+    assert "недействительна или истекла" in response.content.decode()
 
 
 def test_login_by_email(client, user):

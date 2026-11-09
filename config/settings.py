@@ -141,6 +141,25 @@ LOGIN_URL = "users_web:login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
+# Базовый адрес для ссылок в письмах.
+SITE_URL = config("SITE_URL", default="http://localhost:8000")
+
+
+# Почта. По умолчанию письма печатаются в консоль; для реальной отправки
+# задайте SMTP-настройки в .env.
+EMAIL_BACKEND = config(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = config("EMAIL_HOST", default="localhost")
+EMAIL_PORT = config("EMAIL_PORT", default=25, cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=False, cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=False, cast=bool)
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=10, cast=int)
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="Sky Habit <noreply@skyhabit.local>")
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",),

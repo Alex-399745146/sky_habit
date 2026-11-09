@@ -15,6 +15,14 @@
           <span class="badge badge-private ms-2">email не подтверждён</span>
         {% endif %}
       </div>
+      {% if not user.is_verified %}
+        <form method="post" action="{% url 'users_web:resend-verification' %}" class="mt-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-matrix">
+            <i class="bi bi-envelope"></i> Отправить письмо ещё раз
+          </button>
+        </form>
+      {% endif %}
     </div>
     <div class="meta">с нами с {{ user.date_joined|date:"d.m.Y" }}</div>
   </div>

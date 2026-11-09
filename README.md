@@ -29,7 +29,8 @@ Backend и веб-интерфейс трекера привычек на Django
 ## Возможности
 
 - Регистрация, вход по email и JWT-аутентификация.
-- Подтверждение email и сброс пароля.
+- Подтверждение email по одноразовой ссылке (токен в БД, срок 24 часа).
+- Сброс пароля через API (в dev-режиме письмо сохраняется в `tmp/emails/`).
 - CRUD привычек и мест выполнения.
 - Публичные и приватные привычки, отдельная лента публичных привычек.
 - Полезные и приятные привычки, связанные привычки и вознаграждения.
@@ -125,7 +126,37 @@ poetry run pytest --ds=config.settings_test
 `config.settings_test.py` использует SQLite в памяти и не требует PostgreSQL,
 Redis или Docker.
 
-### 5. Миграции и суперпользователь
+### 5. Настройка почты
+
+По умолчанию используется консольный backend: письмо печатается в терминал,
+реальная отправка не выполняется. Для реальной отправки добавьте в `.env`:
+
+```dotenv
+SITE_URL=http://127.0.0.1:8000
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.yandex.ru
+EMAIL_PORT=465
+EMAIL_USE_SSL=True
+EMAIL_USE_TLS=False
+EMAIL_HOST_USER=your@yandex.ru
+EMAIL_HOST_PASSWORD=app-password
+DEFAULT_FROM_EMAIL=Sky Habit <your@yandex.ru>
+```
+
+`EMAIL_HOST_PASSWORD` — пароль приложения почтового провайдера, а не обычный
+пароль аккаунта. Для Mail.ru: `smtp.mail.ru`, порт 465, SSL. Для Gmail:
+`smtp.gmail.com`, порт 587, TLS.
+
+Проверка отправки:
+
+```bash
+poetry run python manage.py sendtestemail your@yandex.ru --settings=config.settings_local
+```
+
+После регистрации письмо содержит ссылку `/verify/<token>/`, действует 24 часа.
+Если письмо потерялось, его можно отправить повторно из профиля.
+
+### 6. Миграции и суперпользователь
 
 ```bash
 docker compose exec backend python manage.py migrate
@@ -148,6 +179,8 @@ Django-сессии (вход по email), а API — JWT.
 | `POST /habits/<id>/delete/` | Удаление |
 | `GET/POST /places/...` | CRUD мест |
 | `GET/POST /profile/` | Профиль и Telegram-настройки |
+| `GET /verify/<token>/` | Подтверждение email по ссылке из письма |
+| `POST /verify/resend/` | Повторная отправка письма из профиля |
 | `GET/POST /login/`, `/register/` | Вход и регистрация |
 
 ## API
@@ -227,7 +260,7 @@ docker compose up -d db redis
 poetry run pytest
 ```
 
-Текущее состояние: **66 тестов, покрытие 87%** (измерено `pytest-cov`).
+Текущее состояние: **72 теста, покрытие 87%** (измерено `pytest-cov`).
 Тесты находятся в `habits/tests.py`, `users/tests.py` и `telegram_bot/tests.py`.
 
 ## Линтеры и типы

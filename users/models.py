@@ -1,8 +1,10 @@
 # users/models.py
 
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
@@ -111,3 +113,39 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email or f"User #{self.pk}"
+
+
+class EmailVerificationToken(models.Model):
+    """Одноразовый токен подтверждения email."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="verification_tokens",
+        verbose_name="Пользователь",
+    )
+    token = models.CharField(
+        max_length=64,
+        unique=True,
+        db_index=True,
+        verbose_name="Токен",
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Создан",
+    )
+    expires_at = models.DateTimeField(
+        verbose_name="Истекает",
+    )
+
+    class Meta:
+        verbose_name = "Токен подтверждения email"
+        verbose_name_plural = "Токены подтверждения email"
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"Токен {self.user.email}"
+
+    @property
+    def is_expired(self) -> bool:
+        return bool(self.expires_at <= timezone.now())

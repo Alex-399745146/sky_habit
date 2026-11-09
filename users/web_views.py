@@ -1,4 +1,4 @@
-import uuid
+import logging
 from typing import cast
 
 from django.contrib import messages
@@ -14,6 +14,8 @@ from telegram_bot.models import TelegramProfile
 
 from .forms import EmailAuthenticationForm, ProfileForm, UserRegistrationForm
 from .services import EmailVerificationService
+
+logger = logging.getLogger(__name__)
 
 
 class WebLoginView(LoginView):
@@ -44,14 +46,54 @@ class RegisterView(FormView):
 
     def form_valid(self, form):
         user = form.save()
-        token = str(uuid.uuid4())
-        EmailVerificationService.send_verification_email(user.email, token)
+
+        try:
+            EmailVerificationService.send_verification_email(user, request=self.request)
+        except Exception:
+            logger.exception("Не удалось отправить письмо подтверждения для %s", user.email)
+            messages.warning(
+                self.request,
+                "Аккаунт создан, но письмо не отправлено. Проверьте настройки почты.",
+            )
+        else:
+            messages.success(
+                self.request,
+                "Аккаунт создан. Проверьте почту и подтвердите email.",
+            )
+
         login(self.request, user)
-        messages.success(
-            self.request,
-            "Аккаунт создан. Письмо с подтверждением сохранено в tmp/emails/ (dev-режим).",
-        )
         return super().form_valid(form)
+
+
+class VerifyEmailView(View):
+    """Подтверждение email по ссылке из письма."""
+
+    def get(self, request, token):
+        user = EmailVerificationService.verify(token)
+        if user is None:
+            messages.error(request, "Ссылка подтверждения недействительна или истекла.")
+        else:
+            messages.success(request, f"Email {user.email} подтверждён.")
+        return redirect("home")
+
+
+class ResendVerificationView(LoginRequiredMixin, View):
+    """Повторная отправка письма подтверждения email."""
+
+    def post(self, request):
+        if request.user.is_verified:
+            messages.info(request, "Email уже подтверждён.")
+            return redirect("users_web:profile")
+
+        try:
+            EmailVerificationService.send_verification_email(request.user, request=request)
+        except Exception:
+            logger.exception("Не удалось отправить письмо подтверждения для %s", request.user.email)
+            messages.error(request, "Не удалось отправить письмо. Проверьте настройки почты.")
+        else:
+            messages.success(request, "Письмо отправлено. Проверьте почту.")
+
+        return redirect("users_web:profile")
 
 
 class ProfileView(LoginRequiredMixin, View):
