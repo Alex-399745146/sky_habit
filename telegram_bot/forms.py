@@ -19,4 +19,8 @@ class TelegramProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["telegram_chat_id"].help_text = (
+            "Личный chat ID, который бот присылает в ответ на /start. Не ID самого бота."
+        )
+        self.fields["telegram_chat_id"].widget.attrs.setdefault("placeholder", "например, 123456789")
         apply_bootstrap_classes(self)

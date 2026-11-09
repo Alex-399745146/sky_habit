@@ -35,11 +35,15 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     await update.message.reply_text(
         f"{message}\n\n"
+        f"Ваш chat ID: <code>{chat_id}</code>\n"
+        "Скопируйте его в профиль Sky Habit или привяжите аккаунт командой:\n"
+        "/link ваш_email@example.com\n\n"
         "Доступные команды:\n"
         "/link <email> — привязать аккаунт\n"
         "/help — помощь\n"
         "/stop — отключить уведомления\n"
-        "/start_notified — включить уведомления"
+        "/start_notified — включить уведомления",
+        parse_mode="HTML",
     )
 
 
@@ -122,6 +126,12 @@ async def link_command(
     except User.DoesNotExist:
         await update.message.reply_text("Пользователь с таким email не найден.")
         return
+
+    # Если у пользователя уже есть профиль с другим chat_id (например, ошибочно
+    # указан ID бота), удаляем старую привязку и оставляем текущий чат.
+    existing_profile = await sync_to_async(TelegramProfile.objects.filter(user=user).exclude(pk=profile.pk).first)()
+    if existing_profile is not None:
+        await sync_to_async(existing_profile.delete)()
 
     profile.user = user
     await sync_to_async(profile.save)()

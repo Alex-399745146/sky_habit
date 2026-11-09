@@ -164,7 +164,25 @@ poetry run python manage.py sendtestemail your@yandex.ru --settings=config.setti
 После регистрации письмо содержит ссылку `/verify/<token>/`, действует 24 часа.
 Если письмо потерялось, его можно отправить повторно из профиля.
 
-### 6. Миграции и суперпользователь
+### 6. Настройка Telegram
+
+1. Укажите `TELEGRAM_BOT_TOKEN` в `.env`.
+2. Запустите бота:
+
+```bash
+DJANGO_SETTINGS_MODULE=config.settings_local poetry run python manage_bot.py
+```
+
+3. Откройте своего бота в Telegram и отправьте `/start` — он покажет ваш chat ID.
+4. Вставьте этот ID в профиль на сайте (`/profile/`) или привяжите аккаунт командой:
+
+```text
+/link ваш_email@example.com
+```
+
+Chat ID — это ID вашего личного чата с ботом, а не ID самого бота.
+
+### 7. Миграции и суперпользователь
 
 ```bash
 docker compose exec backend python manage.py migrate
