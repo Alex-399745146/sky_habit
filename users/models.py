@@ -63,6 +63,19 @@ class User(AbstractUser):
         help_text="Уникальный email для входа и уведомлений.",
     )
 
+    class Gender(models.TextChoices):
+        MALE = "male", "Мужской"
+        FEMALE = "female", "Женский"
+
+    gender = models.CharField(
+        max_length=10,
+        choices=Gender.choices,
+        blank=True,
+        default="",
+        verbose_name="Пол",
+        help_text="Используется для обращения в Telegram-карточках.",
+    )
+
     is_verified = models.BooleanField(
         default=False,
         verbose_name="Email подтверждён",

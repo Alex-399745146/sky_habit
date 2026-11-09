@@ -41,6 +41,7 @@ def user(db):
         password="testpass123",
         first_name="Telegram",
         last_name="Test",
+        gender=User.Gender.MALE,
     )
 
 
@@ -199,6 +200,36 @@ class TestHabitCardService:
         card = build_habit_card(habit)
 
         assert "Мистер neo" in card
+
+    def test_build_habit_card_female_salutation(self, user, place):
+        """Для женского пола используется «Мисс»."""
+        user.gender = User.Gender.FEMALE
+        user.save()
+        habit = Habit.objects.create(
+            owner=user,
+            place=place,
+            time=time(9, 0),
+            action="Проснуться",
+            frequency=1,
+            time_to_complete=30,
+        )
+
+        assert "Мисс Test" in build_habit_card(habit)
+
+    def test_build_habit_card_unspecified_salutation(self, user, place):
+        """Без указанного пола используется нейтральное «Агент»."""
+        user.gender = ""
+        user.save()
+        habit = Habit.objects.create(
+            owner=user,
+            place=place,
+            time=time(9, 0),
+            action="Проснуться",
+            frequency=1,
+            time_to_complete=30,
+        )
+
+        assert "Агент Test" in build_habit_card(habit)
 
     def test_build_habit_card_escapes_html(self, user, place):
         """Пользовательский текст экранируется для HTML parse_mode."""

@@ -12,14 +12,22 @@ class TelegramNotConfigured(Exception):
     """У пользователя нет привязанного Telegram-профиля."""
 
 
-def _agent_address(user) -> str:
-    """Обращение к пользователю в стиле Агента Смита."""
+def _agent_salutation(user) -> str:
+    """Обращение к пользователю в стиле Агента Смита с учётом пола."""
     last_name = (getattr(user, "last_name", "") or "").strip()
     first_name = (getattr(user, "first_name", "") or "").strip()
     username = (getattr(user, "username", "") or "").strip().lstrip("@")
     email = (getattr(user, "email", "") or "").split("@")[0]
     name = last_name or first_name or username or email or "Смит"
-    return str(escape(name))
+
+    if getattr(user, "gender", "") == "female":
+        title = "Мисс"
+    elif getattr(user, "gender", "") == "male":
+        title = "Мистер"
+    else:
+        title = "Агент"
+
+    return f"{title} {escape(name)}"
 
 
 def build_habit_card(habit) -> str:
@@ -29,7 +37,7 @@ def build_habit_card(habit) -> str:
     frequency = "каждый день" if habit.frequency == 1 else f"раз в {habit.frequency} дн."
 
     lines = [
-        f"🟩 <b>Мистер {_agent_address(habit.owner)}</b>",
+        f"🟩 <b>{_agent_salutation(habit.owner)}</b>",
         "",
         f"🎯 <b>{escape(habit.action)}</b>",
         f"🕒 {habit.time.strftime('%H:%M')} · 📍 {place}",

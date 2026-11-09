@@ -91,10 +91,11 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name"]
+        fields = ["first_name", "last_name", "gender"]
         labels = {
             "first_name": "Имя",
             "last_name": "Фамилия",
+            "gender": "Пол",
         }
 
     def __init__(self, *args, **kwargs):

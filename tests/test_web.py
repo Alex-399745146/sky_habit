@@ -265,12 +265,18 @@ def test_duplicate_place_name_is_rejected(auth_client, user):
 def test_profile_updates_name_and_telegram(auth_client, user):
     response = auth_client.post(
         reverse("users_web:profile"),
-        {"save_profile": "1", "first_name": "Александр", "last_name": "Бачевский"},
+        {
+            "save_profile": "1",
+            "first_name": "Александр",
+            "last_name": "Бачевский",
+            "gender": "male",
+        },
     )
 
     user.refresh_from_db()
     assert response.status_code == 302
     assert user.first_name == "Александр"
+    assert user.gender == "male"
 
     response = auth_client.post(
         reverse("users_web:profile"),
