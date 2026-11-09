@@ -1,0 +1,46 @@
+<article class="matrix-card h-100 p-3 d-flex flex-column">
+  <div class="d-flex justify-content-between align-items-start gap-2">
+    <div>
+      <div class="habit-time">{{ habit.time|time:"H:i" }}</div>
+      <h3 class="habit-action h5 mb-1">{{ habit.action }}</h3>
+    </div>
+    <span class="badge badge-matrix text-uppercase">
+      {% if habit.frequency == 1 %}ежедневно{% else %}раз в {{ habit.frequency }} дн.{% endif %}
+    </span>
+  </div>
+
+  <div class="meta mb-2">
+    <i class="bi bi-geo-alt"></i> {{ habit.place.name|default:"без места" }}
+    <span class="mx-1">·</span>
+    <i class="bi bi-hourglass-split"></i> {{ habit.time_to_complete }} сек
+  </div>
+
+  <div class="d-flex flex-wrap gap-1 mb-3">
+    {% if habit.is_public %}
+      <span class="badge badge-matrix">публичная</span>
+    {% else %}
+      <span class="badge badge-private">приватная</span>
+    {% endif %}
+    {% if habit.is_pleasant %}<span class="badge badge-pleasant">приятная</span>{% endif %}
+  </div>
+
+  {% if habit.reward %}
+    <div class="meta mb-1"><i class="bi bi-gift"></i> {{ habit.reward }}</div>
+  {% endif %}
+  {% if habit.linked_habit %}
+    <div class="meta mb-1"><i class="bi bi-link-45deg"></i> {{ habit.linked_habit.action }}</div>
+  {% endif %}
+
+  <div class="mt-auto pt-3 d-flex align-items-center gap-2">
+    <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:detail' habit.pk %}">Подробнее</a>
+    {% if user.is_authenticated and habit.owner_id == user.id %}
+      <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:edit' habit.pk %}" aria-label="Редактировать">
+        <i class="bi bi-pencil"></i>
+      </a>
+      <a class="btn btn-sm btn-danger-matrix" href="{% url 'habits_web:delete' habit.pk %}" aria-label="Удалить">
+        <i class="bi bi-trash"></i>
+      </a>
+    {% endif %}
+    <span class="meta ms-auto text-truncate">{{ habit.owner.email }}</span>
+  </div>
+</article>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Мои привычки — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+      <div class="section-title">my habits</div>
+      <h1 class="h3 mb-1">Мои привычки</h1>
+      <div class="meta">Публичные привычки видны в общей ленте, приватные — только вам.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-matrix" href="{% url 'habits_web:place-list' %}">
+        <i class="bi bi-geo-alt"></i> Места
+      </a>
+      <a class="btn btn-matrix" href="{% url 'habits_web:create' %}">
+        <i class="bi bi-plus-lg"></i> Новая привычка
+      </a>
+    </div>
+  </div>
+
+  {% if habits %}
+    <div class="row g-4">
+      {% for habit in habits %}
+        <div class="col-md-6 col-xl-4">
+          {% include "habits/_habit_card.html" with habit=habit %}
+        </div>
+      {% endfor %}
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <p class="mb-3">У вас пока нет привычек.</p>
+      <a class="btn btn-matrix" href="{% url 'habits_web:create' %}">Создать первую</a>
+    </div>
+  {% endif %}
+{% endblock %}

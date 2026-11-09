@@ -1,0 +1,132 @@
+{% load static %}
+<!doctype html>
+<html lang="ru" data-bs-theme="dark">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sky Habit — трекер привычек на Django REST Framework с Telegram-напоминаниями.">
+    <title>{% block title %}Sky Habit{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    >
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+      integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+      crossorigin="anonymous"
+    >
+    <link href="{% static 'css/matrix.css' %}" rel="stylesheet">
+  </head>
+  <body>
+    <a class="visually-hidden-focusable position-absolute top-0 start-0 p-2 bg-dark text-matrix" href="#main">
+      Перейти к содержимому
+    </a>
+
+    <nav class="navbar navbar-expand-lg navbar-matrix sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">
+          <span class="brand-prompt">&gt;_</span> sky_habit<span class="cursor">_</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#mainNav"
+          aria-controls="mainNav"
+          aria-expanded="false"
+          aria-label="Открыть меню"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.view_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                Главная
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:public-list' %}active{% endif %}" href="{% url 'habits_web:public-list' %}">
+                Публичные
+              </a>
+            </li>
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:list' %}active{% endif %}" href="{% url 'habits_web:list' %}">
+                  Мои привычки
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.view_name == 'habits_web:place-list' or request.resolver_match.view_name == 'habits_web:place-create' or request.resolver_match.view_name == 'habits_web:place-edit' or request.resolver_match.view_name == 'habits_web:place-delete' %}active{% endif %}" href="{% url 'habits_web:place-list' %}">
+                  Места
+                </a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'swagger-ui' %}" target="_blank" rel="noopener">
+                API <i class="bi bi-box-arrow-up-right small"></i>
+              </a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav align-items-lg-center gap-lg-2">
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link nav-user {% if request.resolver_match.view_name == 'users_web:profile' %}active{% endif %}" href="{% url 'users_web:profile' %}">
+                  <i class="bi bi-person-circle"></i> {{ user.email }}
+                </a>
+              </li>
+              <li class="nav-item">
+                <form method="post" action="{% url 'users_web:logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-matrix w-100">Выход</button>
+                </form>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.view_name == 'users_web:login' %}active{% endif %}" href="{% url 'users_web:login' %}">
+                  Вход
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="btn btn-sm btn-matrix w-100" href="{% url 'users_web:register' %}">Регистрация</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main id="main" class="container py-4 py-lg-5">
+      {% include "partials/messages.html" %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer-matrix">
+      <div class="container d-flex flex-column flex-md-row justify-content-between gap-2">
+        <span>&gt;_ sky_habit · Django + DRF · MIT</span>
+        <span class="d-flex gap-3">
+          <a href="{% url 'swagger-ui' %}">Swagger</a>
+          <a href="{% url 'redoc' %}">ReDoc</a>
+          <a href="/admin/">Admin</a>
+        </span>
+      </div>
+    </footer>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

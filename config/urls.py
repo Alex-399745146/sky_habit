@@ -2,16 +2,20 @@
 
 from django.contrib import admin
 from django.urls import include, path
-from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
+from habits.web_views import HomeView
+
 urlpatterns = [
-    # Корень ведёт на документацию API.
-    path("", RedirectView.as_view(pattern_name="swagger-ui", permanent=False), name="home"),
+    # Веб-интерфейс.
+    path("", HomeView.as_view(), name="home"),
+    path("", include("users.web_urls")),
+    path("", include("habits.web_urls")),
+    # Админка.
     path("admin/", admin.site.urls),
     # JWT токены.
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
@@ -25,8 +29,3 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]
-
-
-# GET /api/schema/ — OpenAPI‑схема (JSON/YAML).
-# GET /api/docs/ — Swagger UI.
-# GET /api/redoc/ — ReDoc.

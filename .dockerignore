@@ -15,7 +15,7 @@ htmlcov
 !.env.example
 
 db.sqlite3
-static
+db_local.sqlite3
 staticfiles
 media
 tmp

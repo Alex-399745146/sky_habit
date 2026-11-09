@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="auth-card" style="max-width: 760px;">
+    <div class="section-title mb-2">habit form</div>
+    <h1 class="h3 mb-4">{{ title }}</h1>
+
+    <div class="matrix-card p-4 p-md-5">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+          {% include "partials/form_field.html" with field=field %}
+        {% endfor %}
+
+        <p class="meta">
+          Для приятной привычки поля «Вознаграждение» и «Связанная привычка» не используются.
+        </p>
+
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <button type="submit" class="btn btn-matrix">{{ submit_label }}</button>
+          <a class="btn btn-outline-matrix" href="{% url 'habits_web:list' %}">Отмена</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/habits.js' %}"></script>
+{% endblock %}

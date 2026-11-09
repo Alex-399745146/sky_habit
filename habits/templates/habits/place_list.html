@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Мои места — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+      <div class="section-title">my places</div>
+      <h1 class="h3 mb-1">Мои места</h1>
+      <div class="meta">Места помогают группировать привычки: дом, офис, спортзал.</div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-matrix" href="{% url 'habits_web:list' %}">
+        <i class="bi bi-list-check"></i> Привычки
+      </a>
+      <a class="btn btn-matrix" href="{% url 'habits_web:place-create' %}">
+        <i class="bi bi-plus-lg"></i> Новое место
+      </a>
+    </div>
+  </div>
+
+  {% if places %}
+    <div class="matrix-card p-0 overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th scope="col">Название</th>
+              <th scope="col">Описание</th>
+              <th scope="col">Привычек</th>
+              <th scope="col">Доступ</th>
+              <th scope="col" class="text-end">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for place in places %}
+              <tr>
+                <td class="text-matrix">{{ place.name }}</td>
+                <td class="meta">{{ place.description|default:"—"|truncatechars:80 }}</td>
+                <td>{{ place.habits_count }}</td>
+                <td>
+                  {% if place.is_public %}
+                    <span class="badge badge-matrix">публичное</span>
+                  {% else %}
+                    <span class="badge badge-private">приватное</span>
+                  {% endif %}
+                </td>
+                <td class="text-end text-nowrap">
+                  <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:place-edit' place.pk %}">
+                    <i class="bi bi-pencil"></i> Изменить
+                  </a>
+                  <a class="btn btn-sm btn-danger-matrix" href="{% url 'habits_web:place-delete' place.pk %}">
+                    <i class="bi bi-trash"></i>
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <div class="empty-state">
+      <p class="mb-3">Мест пока нет. Добавьте первое — например, «Дом» или «Спортзал».</p>
+      <a class="btn btn-matrix" href="{% url 'habits_web:place-create' %}">Создать место</a>
+    </div>
+  {% endif %}
+{% endblock %}

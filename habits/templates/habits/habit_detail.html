@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ habit.action }} — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3 mb-4">
+    <div>
+      <div class="section-title">habit #{{ habit.pk }}</div>
+      <h1 class="h3 mb-1">{{ habit.action }}</h1>
+      <div class="meta">
+        {{ habit.owner.email }}
+        <span class="mx-1">·</span>
+        создана {{ habit.created_at|date:"d.m.Y H:i" }}
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <a class="btn btn-outline-matrix" href="{% url 'habits_web:public-list' %}">&larr; К ленте</a>
+      {% if user.is_authenticated and habit.owner_id == user.id %}
+        <a class="btn btn-matrix" href="{% url 'habits_web:edit' habit.pk %}">
+          <i class="bi bi-pencil"></i> Изменить
+        </a>
+        <a class="btn btn-danger-matrix" href="{% url 'habits_web:delete' habit.pk %}">
+          <i class="bi bi-trash"></i> Удалить
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="matrix-card p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="habit-time">{{ habit.time|time:"H:i" }}</div>
+          <div class="d-flex flex-wrap gap-1">
+            {% if habit.is_public %}
+              <span class="badge badge-matrix">публичная</span>
+            {% else %}
+              <span class="badge badge-private">приватная</span>
+            {% endif %}
+            {% if habit.is_pleasant %}<span class="badge badge-pleasant">приятная</span>{% endif %}
+          </div>
+        </div>
+
+        <dl class="row mb-0">
+          <dt class="col-sm-4 meta">Место</dt>
+          <dd class="col-sm-8">{{ habit.place.name|default:"не указано" }}</dd>
+
+          <dt class="col-sm-4 meta">Периодичность</dt>
+          <dd class="col-sm-8">
+            {% if habit.frequency == 1 %}каждый день{% else %}раз в {{ habit.frequency }} дн.{% endif %}
+          </dd>
+
+          <dt class="col-sm-4 meta">Время на выполнение</dt>
+          <dd class="col-sm-8">{{ habit.time_to_complete }} сек</dd>
+
+          <dt class="col-sm-4 meta">Вознаграждение</dt>
+          <dd class="col-sm-8">{{ habit.reward|default:"—" }}</dd>
+
+          <dt class="col-sm-4 meta">Связанная привычка</dt>
+          <dd class="col-sm-8">
+            {% if habit.linked_habit %}
+              <a href="{% url 'habits_web:detail' habit.linked_habit.pk %}">{{ habit.linked_habit.action }}</a>
+            {% else %}
+              —
+            {% endif %}
+          </dd>
+
+          <dt class="col-sm-4 meta">Обновлена</dt>
+          <dd class="col-sm-8">{{ habit.updated_at|date:"d.m.Y H:i" }}</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="matrix-card p-4 h-100">
+        <div class="section-title mb-2">rules</div>
+        <h2 class="h5">Бизнес-правила</h2>
+        <ul class="meta mb-0 ps-3">
+          <li class="mb-2">Нельзя одновременно указать вознаграждение и связанную привычку.</li>
+          <li class="mb-2">У приятной привычки не может быть вознаграждения.</li>
+          <li>Связанная привычка должна быть приятной.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

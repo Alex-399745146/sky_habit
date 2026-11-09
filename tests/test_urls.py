@@ -1,8 +1,10 @@
+import pytest
 from django.urls import reverse
 
 
-def test_root_redirects_to_swagger(client):
-    response = client.get("/")
+@pytest.mark.django_db
+def test_root_renders_home(client):
+    response = client.get(reverse("home"))
 
-    assert response.status_code == 302
-    assert response.url == reverse("swagger-ui")
+    assert response.status_code == 200
+    assert "Sky Habit" in response.content.decode()

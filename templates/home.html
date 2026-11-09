@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Sky Habit — трекер привычек{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="hero-kicker mb-3">// habit tracker · django rest framework</div>
+        <h1 class="hero-title mb-3">
+          Трекер привычек<br>
+          <span class="accent">без лишнего шума</span><span class="cursor">_</span>
+        </h1>
+        <p class="hero-lead mb-4">
+          Создавайте полезные привычки, связывайте их с приятными, отмечайте публичные
+          и получайте напоминания в Telegram. API-first, JWT, Celery и PostgreSQL — всё как надо.
+        </p>
+        <div class="d-flex flex-wrap gap-2">
+          {% if user.is_authenticated %}
+            <a class="btn btn-matrix" href="{% url 'habits_web:list' %}">
+              <i class="bi bi-list-check"></i> Мои привычки
+            </a>
+            <a class="btn btn-outline-matrix" href="{% url 'habits_web:create' %}">
+              <i class="bi bi-plus-lg"></i> Новая привычка
+            </a>
+          {% else %}
+            <a class="btn btn-matrix" href="{% url 'users_web:register' %}">
+              <i class="bi bi-person-plus"></i> Начать
+            </a>
+            <a class="btn btn-outline-matrix" href="{% url 'users_web:login' %}">Войти</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="matrix-card p-4">
+          <div class="meta mb-3">$ ./habit --today</div>
+          <div class="d-flex justify-content-between border-bottom border-success-subtle py-2">
+            <span class="text-matrix">07:00</span>
+            <span>зарядка 10 минут</span>
+            <span class="text-matrix">done</span>
+          </div>
+          <div class="d-flex justify-content-between border-bottom border-success-subtle py-2">
+            <span class="text-matrix">08:00</span>
+            <span>чашка кофе</span>
+            <span class="text-dim">reward</span>
+          </div>
+          <div class="d-flex justify-content-between border-bottom border-success-subtle py-2">
+            <span class="text-matrix">21:30</span>
+            <span>прочитать 10 страниц</span>
+            <span class="text-dim">planned</span>
+          </div>
+          <div class="meta mt-3">
+            <span class="cursor">_</span> 3 привычки · 2 публичные · 1 напоминание
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="row g-3">
+    <div class="col-6 col-lg-3">
+      <div class="matrix-card p-3 h-100">
+        <div class="stat-value">{{ public_count }}</div>
+        <div class="stat-label">публичных привычек</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="matrix-card p-3 h-100">
+        <div class="stat-value">{{ users_count }}</div>
+        <div class="stat-label">пользователей</div>
+      </div>
+    </div>
+    {% if user.is_authenticated %}
+      <div class="col-6 col-lg-3">
+        <div class="matrix-card p-3 h-100">
+          <div class="stat-value">{{ my_habits_count }}</div>
+          <div class="stat-label">моих привычек</div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="matrix-card p-3 h-100">
+          <div class="stat-value">{{ my_places_count }}</div>
+          <div class="stat-label">моих мест</div>
+        </div>
+      </div>
+    {% else %}
+      <div class="col-12 col-lg-6">
+        <div class="matrix-card p-3 h-100 d-flex align-items-center justify-content-between gap-3">
+          <span class="meta">Войдите, чтобы вести свои привычки и места.</span>
+          <a class="btn btn-sm btn-outline-matrix" href="{% url 'users_web:login' %}">Войти</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="d-flex justify-content-between align-items-end mt-5 mb-3">
+    <div>
+      <div class="section-title">public feed</div>
+      <h2 class="h3 mb-0">Публичные привычки</h2>
+    </div>
+    <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:public-list' %}">Все &rarr;</a>
+  </div>
+
+  <div class="row g-4">
+    {% for habit in public_habits %}
+      <div class="col-md-6 col-xl-4">
+        {% include "habits/_habit_card.html" with habit=habit %}
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="empty-state">
+          Публичных привычек пока нет. Станьте первым — создайте привычку и отметьте её публичной.
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-title mb-2">features</div>
+  <h2 class="h3 mb-4">Что уже умеет проект</h2>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="matrix-card p-4 h-100">
+        <div class="text-matrix fs-4 mb-2"><i class="bi bi-braces"></i></div>
+        <h3 class="h5">API-first</h3>
+        <p class="meta mb-0">
+          Django REST Framework, JWT, OpenAPI-схема, Swagger UI и ReDoc.
+          Все CRUD-операции доступны через API.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="matrix-card p-4 h-100">
+        <div class="text-matrix fs-4 mb-2"><i class="bi bi-telegram"></i></div>
+        <h3 class="h5">Telegram-напоминания</h3>
+        <p class="meta mb-0">
+          Celery Beat раз в день собирает привычки пользователей и отправляет
+          напоминания через Telegram-бота.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="matrix-card p-4 h-100">
+        <div class="text-matrix fs-4 mb-2"><i class="bi bi-shield-check"></i></div>
+        <h3 class="h5">Валидация бизнес-правил</h3>
+        <p class="meta mb-0">
+          Нельзя одновременно указать вознаграждение и связанную привычку,
+          а приятная привычка не может быть вознаграждением сама себе.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 d-flex flex-wrap gap-2">
+    <span class="badge badge-matrix">Python 3.13</span>
+    <span class="badge badge-matrix">Django 6</span>
+    <span class="badge badge-matrix">DRF</span>
+    <span class="badge badge-matrix">JWT</span>
+    <span class="badge badge-matrix">Celery</span>
+    <span class="badge badge-matrix">Redis</span>
+    <span class="badge badge-matrix">PostgreSQL</span>
+    <span class="badge badge-matrix">Docker</span>
+  </div>
+{% endblock %}

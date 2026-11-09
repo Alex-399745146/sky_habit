@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Профиль — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+      <div class="section-title">profile</div>
+      <h1 class="h3 mb-1">{{ user.get_full_name|default:user.email }}</h1>
+      <div class="meta">
+        {{ user.email }}
+        {% if user.is_verified %}
+          <span class="badge badge-matrix ms-2">email подтверждён</span>
+        {% else %}
+          <span class="badge badge-private ms-2">email не подтверждён</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="meta">с нами с {{ user.date_joined|date:"d.m.Y" }}</div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-4">
+      <div class="matrix-card p-3">
+        <div class="stat-value">{{ habits_count }}</div>
+        <div class="stat-label">привычек</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-4">
+      <div class="matrix-card p-3">
+        <div class="stat-value">{{ places_count }}</div>
+        <div class="stat-label">мест</div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-4">
+      <div class="matrix-card p-3">
+        <div class="stat-value">{{ public_habits_count }}</div>
+        <div class="stat-label">публичных привычек</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="matrix-card p-4 h-100">
+        <div class="section-title mb-2">account</div>
+        <h2 class="h5 mb-3">Личные данные</h2>
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in form %}
+            {% include "partials/form_field.html" with field=field %}
+          {% endfor %}
+          <button type="submit" name="save_profile" value="1" class="btn btn-matrix">Сохранить</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="matrix-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-start">
+          <div class="section-title mb-1">telegram</div>
+          {% if telegram_form.instance.telegram_chat_id %}
+            <span class="badge badge-matrix">подключён</span>
+          {% else %}
+            <span class="badge badge-private">не подключён</span>
+          {% endif %}
+        </div>
+        <h2 class="h5 mb-3">Напоминания</h2>
+
+        <p class="meta">
+          Укажите chat ID, который выдаёт Telegram-бот, и включите рассылку.
+          Без chat ID напоминания отправляться не будут.
+        </p>
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {% for field in telegram_form %}
+            {% include "partials/form_field.html" with field=field %}
+          {% endfor %}
+          <button type="submit" name="save_telegram" value="1" class="btn btn-matrix">Сохранить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-4">
+    <a class="btn btn-outline-matrix" href="{% url 'habits_web:list' %}">Мои привычки</a>
+    <a class="btn btn-outline-matrix" href="{% url 'habits_web:place-list' %}">Мои места</a>
+    <a class="btn btn-outline-matrix" href="{% url 'habits_web:create' %}">Новая привычка</a>
+  </div>
+{% endblock %}

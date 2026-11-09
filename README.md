@@ -1,17 +1,18 @@
 # Sky Habit — трекер привычек
 
 [![CI](https://github.com/Alex-399745146/sky_habit/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/Alex-399745146/sky_habit/actions/workflows/ci.yaml)
-[![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](#тесты-и-покрытие)
+[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](#тесты-и-покрытие)
 [![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-6.0-092E20)](https://www.djangoproject.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Backend трекера привычек на Django REST Framework с JWT-аутентификацией,
+Backend и веб-интерфейс трекера привычек на Django REST Framework с JWT-аутентификацией,
 напоминаниями в Telegram и фоновыми задачами Celery.
 
 Сервис позволяет регистрироваться, создавать привычки и места их выполнения,
 отмечать привычки публичными, связывать полезную привычку с приятной
-и получать ежедневные напоминания в Telegram.
+и получать ежедневные напоминания в Telegram. Веб-интерфейс оформлен
+в тёмной Matrix-теме на Bootstrap 5.
 
 ## Стек
 
@@ -20,6 +21,7 @@ Backend трекера привычек на Django REST Framework с JWT-аут
 - PostgreSQL 16, Redis 6
 - Celery + Celery Beat
 - Telegram Bot API (`python-telegram-bot`)
+- Bootstrap 5 (CDN), Matrix-тема, Django templates
 - Docker Compose, Nginx, Gunicorn
 - Poetry, pytest, flake8, black, isort, mypy
 - GitHub Actions (CI + ручной деплой)
@@ -34,6 +36,7 @@ Backend трекера привычек на Django REST Framework с JWT-аут
 - Валидация бизнес-правил на уровне моделей и сериализаторов.
 - Ежедневные напоминания в Telegram через Celery Beat.
 - Swagger UI, ReDoc и OpenAPI-схема.
+- Веб-интерфейс: главная, CRUD привычек и мест, профиль, вход и регистрация.
 - Автотесты, линтеры, проверка типов и сборка Docker-образов в CI.
 
 ## Скриншоты
@@ -45,6 +48,10 @@ Backend трекера привычек на Django REST Framework с JWT-аут
 | Админка | Публичные привычки (API) |
 |---|---|
 | ![Админка Django](docs/screenshots/admin-habits.png) | ![Публичные привычки](docs/screenshots/api-public-habits.png) |
+
+| Веб-интерфейс | Мои привычки |
+|---|---|
+| ![Главная страница](docs/screenshots/ui-home.png) | ![Мои привычки](docs/screenshots/ui-habits.png) |
 
 ## Быстрый старт
 
@@ -117,9 +124,25 @@ docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py createsuperuser
 ```
 
-## API
+## Веб-интерфейс
 
-Корень `/` перенаправляет на Swagger UI.
+Корень `/` — главная страница с публичной лентой. Веб-интерфейс использует
+Django-сессии (вход по email), а API — JWT.
+
+| Маршрут | Назначение |
+|---|---|
+| `GET /` | Главная и публичная лента |
+| `GET /public/` | Все публичные привычки |
+| `GET /habits/` | Мои привычки |
+| `GET/POST /habits/new/` | Создание привычки |
+| `GET /habits/<id>/` | Детальная страница |
+| `GET/POST /habits/<id>/edit/` | Редактирование |
+| `POST /habits/<id>/delete/` | Удаление |
+| `GET/POST /places/...` | CRUD мест |
+| `GET/POST /profile/` | Профиль и Telegram-настройки |
+| `GET/POST /login/`, `/register/` | Вход и регистрация |
+
+## API
 
 | Маршрут | Назначение |
 |---|---|
@@ -196,7 +219,7 @@ docker compose up -d db redis
 poetry run pytest
 ```
 
-Текущее состояние: **54 теста, покрытие 84%** (измерено `pytest-cov`).
+Текущее состояние: **66 тестов, покрытие 87%** (измерено `pytest-cov`).
 Тесты находятся в `habits/tests.py`, `users/tests.py` и `telegram_bot/tests.py`.
 
 ## Линтеры и типы
@@ -245,11 +268,13 @@ GitHub Actions выполняет:
 ```text
 sky_habit/
 ├── config/              # настройки, URL, Celery, WSGI
-├── users/               # кастомный пользователь, JWT, email-верификация
-├── habits/              # привычки, места, права, сериализаторы
+├── users/               # пользователь, JWT, email, вход и регистрация
+├── habits/              # привычки, места, API и веб-views
 ├── telegram_bot/        # бот, профили и задачи напоминаний
+├── templates/           # base.html, главная, общие partials
+├── static/              # Matrix-тема (CSS) и JS форм
 ├── tests/               # общие тестовые пакеты
-├── docs/screenshots/    # скриншоты Swagger, ReDoc и админки
+├── docs/screenshots/    # скриншоты интерфейса и API
 ├── .github/workflows/   # CI и ручной деплой
 ├── docker-compose.yaml
 └── pyproject.toml
