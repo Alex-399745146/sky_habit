@@ -13,6 +13,11 @@ from django.utils import timezone
 
 from habits.models import Habit, Place
 from telegram_bot.models import TelegramProfile
+from telegram_bot.services import (
+    TelegramNotConfigured,
+    build_habit_card,
+    send_habit_card,
+)
 from telegram_bot.tasks import (
     send_daily_reminders,
     send_telegram_message,
@@ -137,7 +142,7 @@ class TestSendTelegramNotification:
 class TestSendTelegramMessage:
     """Тесты задачи send_telegram_message."""
 
-    @patch("telegram_bot.tasks.Bot")
+    @patch("telegram_bot.services.Bot")
     def test_send_message_success(self, mock_bot_class):
         """Тест успешной отправки сообщения."""
         mock_bot = MagicMock()
@@ -147,9 +152,9 @@ class TestSendTelegramMessage:
         # Задача должна выполниться без ошибок
         send_telegram_message(123456, "Тестовое сообщение")
 
-        assert True
+        mock_bot.send_message.assert_awaited_once()
 
-    @patch("telegram_bot.tasks.Bot")
+    @patch("telegram_bot.services.Bot")
     @patch("telegram_bot.tasks.logger")
     def test_send_message_error(self, mock_logger, mock_bot_class):
         """Тест ошибки при отправке сообщения."""
@@ -160,4 +165,53 @@ class TestSendTelegramMessage:
         # Задача должна обработать ошибку
         send_telegram_message(123456, "Тестовое сообщение")
 
-        assert True
+        mock_logger.error.assert_called_once()
+
+
+class TestHabitCardService:
+    """Тесты карточки привычки и принудительной отправки."""
+
+    def test_build_habit_card(self, habit):
+        """Карточка содержит основные данные привычки."""
+        card = build_habit_card(habit)
+
+        assert "SKY HABIT // CARD" in card
+        assert habit.action in card
+        assert "Дом" in card
+        assert habit.time.strftime("%H:%M") in card
+
+    def test_build_habit_card_escapes_html(self, user, place):
+        """Пользовательский текст экранируется для HTML parse_mode."""
+        habit = Habit.objects.create(
+            owner=user,
+            place=place,
+            time=time(9, 0),
+            action="<b>опасный</b> текст",
+            frequency=1,
+            time_to_complete=30,
+        )
+
+        card = build_habit_card(habit)
+
+        assert "&lt;b&gt;опасный&lt;/b&gt; текст" in card
+        assert "<b>опасный</b>" not in card
+
+    def test_send_habit_card_requires_profile(self, user, habit):
+        """Без Telegram-профиля карточка не отправляется."""
+        with pytest.raises(TelegramNotConfigured):
+            send_habit_card(habit)
+
+    @patch("telegram_bot.services.Bot")
+    def test_send_habit_card_sends_to_chat(self, mock_bot_class, telegram_profile, habit):
+        """Карточка отправляется в chat_id профиля."""
+        mock_bot = MagicMock()
+        mock_bot.send_message = AsyncMock()
+        mock_bot_class.return_value = mock_bot
+
+        send_habit_card(habit)
+
+        mock_bot.send_message.assert_awaited_once()
+        kwargs = mock_bot.send_message.await_args.kwargs
+        assert kwargs["chat_id"] == telegram_profile.telegram_chat_id
+        assert kwargs["parse_mode"] == "HTML"
+        assert habit.action in kwargs["text"]

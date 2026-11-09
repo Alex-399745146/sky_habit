@@ -31,9 +31,15 @@
     <div class="meta mb-1"><i class="bi bi-link-45deg"></i> {{ habit.linked_habit.action }}</div>
   {% endif %}
 
-  <div class="mt-auto pt-3 d-flex align-items-center gap-2">
+  <div class="mt-auto pt-3 d-flex flex-wrap align-items-center gap-2">
     <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:detail' habit.pk %}">Подробнее</a>
     {% if user.is_authenticated and habit.owner_id == user.id %}
+      <form method="post" action="{% url 'habits_web:send-telegram' habit.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-matrix" aria-label="Отправить в Telegram" title="Отправить в Telegram">
+          <i class="bi bi-send"></i>
+        </button>
+      </form>
       <a class="btn btn-sm btn-outline-matrix" href="{% url 'habits_web:edit' habit.pk %}" aria-label="Редактировать">
         <i class="bi bi-pencil"></i>
       </a>

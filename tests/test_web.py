@@ -1,4 +1,5 @@
 import datetime
+from unittest.mock import patch
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -6,6 +7,7 @@ from django.urls import reverse
 
 from habits.models import Habit, Place
 from telegram_bot.models import TelegramProfile
+from telegram_bot.services import TelegramNotConfigured
 from users.services import EmailVerificationService
 
 User = get_user_model()
@@ -185,6 +187,50 @@ def test_create_place_sets_owner(auth_client, user):
     place = Place.objects.get(name="Спортзал")
     assert response.status_code == 302
     assert place.owner == user
+
+
+def test_send_habit_card_to_telegram(auth_client, user):
+    TelegramProfile.objects.create(user=user, telegram_chat_id=123456789)
+    habit = make_habit(user, action="Отправить карточку")
+
+    with patch("habits.web_views.send_habit_card") as sender:
+        response = auth_client.post(reverse("habits_web:send-telegram", args=[habit.pk]))
+
+    assert response.status_code == 302
+    sender.assert_called_once_with(habit)
+
+
+def test_send_habit_card_without_telegram_profile(auth_client, user):
+    habit = make_habit(user)
+
+    with patch("habits.web_views.send_habit_card", side_effect=TelegramNotConfigured):
+        response = auth_client.post(
+            reverse("habits_web:send-telegram", args=[habit.pk]),
+            follow=True,
+        )
+
+    assert response.status_code == 200
+    assert "Telegram не привязан" in response.content.decode()
+
+
+def test_send_all_habit_cards_to_telegram(auth_client, user):
+    TelegramProfile.objects.create(user=user, telegram_chat_id=123456789)
+    make_habit(user, action="Первая карточка")
+    make_habit(user, action="Вторая карточка")
+
+    with patch("habits.web_views.send_habit_card") as sender:
+        response = auth_client.post(reverse("habits_web:send-telegram-all"))
+
+    assert response.status_code == 302
+    assert sender.call_count == 2
+
+
+def test_cannot_send_other_users_card(auth_client, other_user):
+    habit = make_habit(other_user)
+
+    response = auth_client.post(reverse("habits_web:send-telegram", args=[habit.pk]))
+
+    assert response.status_code == 404
 
 
 def test_duplicate_place_name_is_rejected(auth_client, user):

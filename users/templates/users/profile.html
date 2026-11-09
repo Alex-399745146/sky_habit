@@ -87,6 +87,16 @@
           {% endfor %}
           <button type="submit" name="save_telegram" value="1" class="btn btn-matrix">Сохранить</button>
         </form>
+
+        {% if telegram_form.instance.telegram_chat_id %}
+          <div class="divider"></div>
+          <form method="post" action="{% url 'habits_web:send-telegram-all' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-matrix w-100">
+              <i class="bi bi-send"></i> Отправить все карточки в Telegram
+            </button>
+          </form>
+        {% endif %}
       </div>
     </div>
   </div>

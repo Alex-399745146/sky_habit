@@ -1,7 +1,7 @@
 # Sky Habit — трекер привычек
 
 [![CI](https://github.com/Alex-399745146/sky_habit/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/Alex-399745146/sky_habit/actions/workflows/ci.yaml)
-[![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen)](#тесты-и-покрытие)
+[![Coverage](https://img.shields.io/badge/coverage-88%25-brightgreen)](#тесты-и-покрытие)
 [![Python](https://img.shields.io/badge/python-3.13-blue)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-6.0-092E20)](https://www.djangoproject.com/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -36,6 +36,7 @@ Backend и веб-интерфейс трекера привычек на Django
 - Полезные и приятные привычки, связанные привычки и вознаграждения.
 - Валидация бизнес-правил на уровне моделей и сериализаторов.
 - Ежедневные напоминания в Telegram через Celery Beat.
+- Ручная отправка карточек привычек в Telegram из интерфейса.
 - Swagger UI, ReDoc и OpenAPI-схема.
 - Веб-интерфейс: главная, CRUD привычек и мест, профиль, вход и регистрация.
 - Автотесты, линтеры, проверка типов и сборка Docker-образов в CI.
@@ -184,6 +185,8 @@ Django-сессии (вход по email), а API — JWT.
 | `GET /habits/<id>/` | Детальная страница |
 | `GET/POST /habits/<id>/edit/` | Редактирование |
 | `POST /habits/<id>/delete/` | Удаление |
+| `POST /habits/<id>/send-telegram/` | Отправить карточку в Telegram |
+| `POST /habits/send-telegram/` | Отправить все карточки в Telegram |
 | `GET/POST /places/...` | CRUD мест |
 | `GET/POST /profile/` | Профиль и Telegram-настройки |
 | `GET /verify/<token>/` | Подтверждение email по ссылке из письма |
@@ -267,7 +270,7 @@ docker compose up -d db redis
 poetry run pytest
 ```
 
-Текущее состояние: **72 теста, покрытие 87%** (измерено `pytest-cov`).
+Текущее состояние: **80 тестов, покрытие 88%** (измерено `pytest-cov`).
 Тесты находятся в `habits/tests.py`, `users/tests.py` и `telegram_bot/tests.py`.
 
 ## Линтеры и типы
