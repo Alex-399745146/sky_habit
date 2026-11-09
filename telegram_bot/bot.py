@@ -39,7 +39,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Скопируйте его в профиль Sky Habit или привяжите аккаунт командой:\n"
         "/link ваш_email@example.com\n\n"
         "Доступные команды:\n"
-        "/link <email> — привязать аккаунт\n"
+        "/link email — привязать аккаунт\n"
         "/help — помощь\n"
         "/stop — отключить уведомления\n"
         "/start_notified — включить уведомления",
@@ -59,7 +59,7 @@ async def help_command(
         "🤖 Бот для напоминаний о привычках\n\n"
         "Команды:\n"
         "/start — начать использование\n"
-        "/link <email> — привязать аккаунт Sky Habit\n"
+        "/link email — привязать аккаунт Sky Habit\n"
         "/help — эта справка\n"
         "/stop — отключить уведомления\n"
         "/start_notified — включить уведомления"
@@ -154,4 +154,5 @@ def run_bot() -> None:
     application.add_handler(CommandHandler("link", link_command))
 
     logger.info("Telegram bot started")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    print("Telegram bot started", flush=True)
+    application.run_polling(allowed_updates=Update.ALL_TYPES, bootstrap_retries=10)
