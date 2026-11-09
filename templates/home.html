@@ -1,9 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Sky Habit — трекер привычек{% endblock %}
 
 {% block content %}
   <section class="hero">
+    <div class="hero-matrix" aria-hidden="true">
+      <canvas id="matrix-rain"></canvas>
+    </div>
+
     <div class="row align-items-center g-5">
       <div class="col-lg-7">
         <div class="hero-kicker mb-3">// habit tracker · django rest framework</div>
@@ -163,4 +168,8 @@
     <span class="badge badge-matrix">PostgreSQL</span>
     <span class="badge badge-matrix">Docker</span>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/matrix-rain.js' %}"></script>
 {% endblock %}

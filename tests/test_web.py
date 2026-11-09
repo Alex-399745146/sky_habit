@@ -56,6 +56,7 @@ def test_home_shows_public_habits(client, user):
     assert response.status_code == 200
     assert "Публичная зарядка" in content
     assert "Секретная привычка" not in content
+    assert 'id="matrix-rain"' in content
 
 
 def test_public_list_hides_private_habits(client, user):
