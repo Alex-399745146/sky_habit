@@ -457,6 +457,49 @@ h6 {
   text-align: center;
 }
 
+.step-number {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  color: var(--matrix-green);
+  border: 1px solid var(--matrix-green);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(0, 255, 102, 0.25);
+}
+
+.matrix-details {
+  cursor: pointer;
+}
+
+.matrix-details summary {
+  color: var(--matrix-green-bright);
+  list-style: none;
+}
+
+.matrix-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.matrix-details summary::before {
+  margin-right: 0.5rem;
+  color: var(--matrix-green);
+  content: "▸";
+}
+
+.matrix-details[open] summary::before {
+  content: "▾";
+}
+
+code {
+  color: var(--matrix-green-bright);
+  background: rgba(0, 255, 102, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+}
+
 a:focus-visible,
 button:focus-visible,
 .btn:focus-visible,

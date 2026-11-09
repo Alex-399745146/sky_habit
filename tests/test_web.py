@@ -109,6 +109,23 @@ def test_verify_email_link(client, user):
     assert user.is_verified is True
 
 
+def test_telegram_guide_page(client):
+    response = client.get(reverse("users_web:telegram-guide"))
+    content = response.content.decode()
+
+    assert response.status_code == 200
+    assert "chat ID" in content
+    assert "username" in content.lower()
+    assert "Открыть @" in content
+
+
+def test_profile_links_to_telegram_guide(auth_client):
+    response = auth_client.get(reverse("users_web:profile"))
+
+    assert response.status_code == 200
+    assert reverse("users_web:telegram-guide") in response.content.decode()
+
+
 def test_resend_verification_email(auth_client, user, mailoutbox):
     response = auth_client.post(reverse("users_web:resend-verification"))
 

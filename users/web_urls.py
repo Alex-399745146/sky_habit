@@ -4,6 +4,7 @@ from .web_views import (
     ProfileView,
     RegisterView,
     ResendVerificationView,
+    TelegramGuideView,
     VerifyEmailView,
     WebLoginView,
     WebLogoutView,
@@ -17,5 +18,6 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("verify/resend/", ResendVerificationView.as_view(), name="resend-verification"),
     path("verify/<str:token>/", VerifyEmailView.as_view(), name="verify"),
+    path("guides/telegram/", TelegramGuideView.as_view(), name="telegram-guide"),
     path("profile/", ProfileView.as_view(), name="profile"),
 ]

@@ -60,6 +60,10 @@ HTML-письмо подтверждения в стиле Matrix — «карт
 
 ![Письмо подтверждения email](docs/screenshots/email-verification.png)
 
+### Telegram
+
+![Гайд по подключению Telegram](docs/screenshots/telegram-guide.png)
+
 ### API и админка
 
 ![Swagger UI](docs/screenshots/swagger.png)
@@ -207,6 +211,7 @@ Django-сессии (вход по email), а API — JWT.
 | `POST /habits/send-telegram/` | Отправить все карточки в Telegram |
 | `GET/POST /places/...` | CRUD мест |
 | `GET/POST /profile/` | Профиль и Telegram-настройки |
+| `GET /guides/telegram/` | Гайд: где взять chat ID и username |
 | `GET /verify/<token>/` | Подтверждение email по ссылке из письма |
 | `POST /verify/resend/` | Повторная отправка письма из профиля |
 | `GET/POST /login/`, `/register/` | Вход и регистрация |
@@ -288,7 +293,7 @@ docker compose up -d db redis
 poetry run pytest
 ```
 
-Текущее состояние: **80 тестов, покрытие 88%** (измерено `pytest-cov`).
+Текущее состояние: **82 теста, покрытие 88%** (измерено `pytest-cov`).
 Тесты находятся в `habits/tests.py`, `users/tests.py` и `telegram_bot/tests.py`.
 
 ## Линтеры и типы

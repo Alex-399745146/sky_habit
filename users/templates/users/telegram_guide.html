@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Как подключить Telegram — Sky Habit{% endblock %}
+
+{% block content %}
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+      <div class="section-title">telegram guide</div>
+      <h1 class="h3 mb-1">Как подключить Telegram</h1>
+      <div class="meta">Две минуты — и напоминания начнут приходить прямо в чат.</div>
+    </div>
+    {% if user.is_authenticated %}
+      <a class="btn btn-outline-matrix" href="{% url 'users_web:profile' %}">
+        <i class="bi bi-arrow-left"></i> В профиль
+      </a>
+    {% else %}
+      <a class="btn btn-outline-matrix" href="{% url 'users_web:login' %}">
+        <i class="bi bi-box-arrow-in-right"></i> Войти
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="matrix-card p-4 mb-4">
+        <div class="section-title mb-2">what you need</div>
+        <h2 class="h5 mb-3">Что понадобится</h2>
+        <ul class="meta mb-0 ps-3">
+          <li class="mb-2">
+            <strong class="text-matrix">chat ID</strong> — номер вашего личного чата с ботом.
+            Это обязательное поле.
+          </li>
+          <li>
+            <strong class="text-matrix">username</strong> — ваш ник в Telegram, например
+            <code>@ivan_petrov</code>. Поле необязательное.
+          </li>
+        </ul>
+      </div>
+
+      <div class="matrix-card p-4 mb-4">
+        <div class="d-flex gap-3">
+          <span class="step-number">1</span>
+          <div>
+            <h2 class="h5 mb-2">Откройте бота</h2>
+            <p class="mb-3">
+              В Telegram найдите бота
+              {% if bot_username %}<code>@{{ bot_username }}</code>{% else %}Sky Habit{% endif %}
+              или нажмите кнопку ниже.
+            </p>
+            {% if bot_url %}
+              <a class="btn btn-matrix btn-sm" href="{{ bot_url }}" target="_blank" rel="noopener">
+                <i class="bi bi-telegram"></i> Открыть @{{ bot_username }}
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-card p-4 mb-4">
+        <div class="d-flex gap-3">
+          <span class="step-number">2</span>
+          <div>
+            <h2 class="h5 mb-2">Нажмите «Запустить»</h2>
+            <p>
+              Внизу чата нажмите кнопку <strong>«Запустить»</strong> или отправьте команду
+              <code>/start</code>. Бот ответит примерно так:
+            </p>
+            <div class="matrix-card p-3 mb-3">
+              <code>Ваш chat ID: 123456789</code>
+            </div>
+            <p class="mb-0">
+              Скопируйте <strong>только цифры</strong> — это и есть ваш chat ID.
+              Он не меняется и не является секретом.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-card p-4 mb-4">
+        <div class="d-flex gap-3">
+          <span class="step-number">3</span>
+          <div>
+            <h2 class="h5 mb-2">Узнайте username <span class="meta">(необязательно)</span></h2>
+            <p>
+              В Telegram откройте <strong>Настройки → Профиль</strong>
+              (в некоторых версиях — «Изменить профиль») и посмотрите поле
+              <strong>«Имя пользователя»</strong>.
+            </p>
+            <p class="mb-0">
+              Если у вас <code>@ivan_petrov</code>, на сайте вводите
+              <code>ivan_petrov</code> — без символа <code>@</code>.
+              Можно оставить поле пустым: на отправку карточек это не влияет.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-card p-4 mb-4">
+        <div class="d-flex gap-3">
+          <span class="step-number">4</span>
+          <div>
+            <h2 class="h5 mb-2">Сохраните в профиле</h2>
+            <p>
+              Вернитесь в профиль, вставьте chat ID, при желании добавьте username,
+              включите «Отправлять напоминания» и нажмите «Сохранить».
+            </p>
+            <a class="btn btn-matrix btn-sm" href="{% url 'users_web:profile' %}">
+              <i class="bi bi-person-circle"></i> Перейти в профиль
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-danger" role="alert">
+        <strong>Важно:</strong> не вставляйте в поле chat ID номер самого бота —
+        напоминания не дойдут. Нужен именно номер <strong>вашего личного чата</strong>,
+        который бот присылает в ответ на <code>/start</code>.
+      </div>
+
+      <h2 class="h5 mt-4 mb-3">Частые вопросы</h2>
+
+      <details class="matrix-card matrix-details p-3 mb-2">
+        <summary>Бот не отвечает на /start</summary>
+        <p class="meta mt-2 mb-0">
+          Проверьте, что вы открыли правильного бота и нажали именно «Запустить».
+          Если сообщение отправлено, но ответа нет, подождите немного и попробуйте
+          ещё раз. Для локального запуска проекта бот должен быть запущен на компьютере.
+        </p>
+      </details>
+
+      <details class="matrix-card matrix-details p-3 mb-2">
+        <summary>Где ещё можно узнать chat ID</summary>
+        <p class="meta mt-2 mb-0">
+          Самый простой способ — ответ нашего бота на <code>/start</code>.
+          Также можно написать стороннему боту <code>@userinfobot</code>:
+          он покажет ваш ID. Главное — не путать его с ID бота Sky Habit.
+        </p>
+      </details>
+
+      <details class="matrix-card matrix-details p-3 mb-2">
+        <summary>Username обязателен?</summary>
+        <p class="meta mt-2 mb-0">
+          Нет. Для отправки карточек достаточно chat ID. Username нужен только
+          для удобства и отображения в профиле.
+        </p>
+      </details>
+
+      <details class="matrix-card matrix-details p-3 mb-2">
+        <summary>Карточки всё равно не приходят</summary>
+        <p class="meta mt-2 mb-0">
+          Проверьте три вещи: chat ID состоит только из цифр, галочка
+          «Отправлять напоминания» включена, а боту отправлена команда
+          <code>/start_notified</code>. После этого нажмите кнопку отправки
+          карточки в профиле или на странице привычки.
+        </p>
+      </details>
+
+      <details class="matrix-card matrix-details p-3 mb-2">
+        <summary>Можно ли указать ID группы</summary>
+        <p class="meta mt-2 mb-0">
+          Да, если бот добавлен в эту группу. ID группы обычно начинается с минуса.
+          Для личных напоминаний лучше использовать chat ID личного чата.
+        </p>
+      </details>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="matrix-card p-4">
+        <div class="section-title mb-3">checklist</div>
+        <ul class="meta ps-3 mb-0">
+          <li class="mb-2">Бот открыт в Telegram</li>
+          <li class="mb-2">Отправлен <code>/start</code></li>
+          <li class="mb-2">Скопирован chat ID из ответа</li>
+          <li class="mb-2">ID вставлен в профиль</li>
+          <li class="mb-2">Включена рассылка</li>
+          <li>Сохранено</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

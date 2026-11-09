@@ -162,6 +162,7 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="Sky Habit <noreply@sk
 
 # Telegram-бот.
 TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_USERNAME = config("TELEGRAM_BOT_USERNAME", default="abarmot_pro_bot")
 
 
 REST_FRAMEWORK = {

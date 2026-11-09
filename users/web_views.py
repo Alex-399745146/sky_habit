@@ -1,13 +1,14 @@
 import logging
 from typing import cast
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import FormView, View
+from django.views.generic import FormView, TemplateView, View
 
 from telegram_bot.forms import TelegramProfileForm
 from telegram_bot.models import TelegramProfile
@@ -94,6 +95,19 @@ class ResendVerificationView(LoginRequiredMixin, View):
             messages.success(request, "Письмо отправлено. Проверьте почту.")
 
         return redirect("users_web:profile")
+
+
+class TelegramGuideView(TemplateView):
+    """Пошаговая инструкция: где взять chat ID и username."""
+
+    template_name = "users/telegram_guide.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        username = str(getattr(settings, "TELEGRAM_BOT_USERNAME", "") or "").lstrip("@")
+        context["bot_username"] = username
+        context["bot_url"] = f"https://t.me/{username}" if username else ""
+        return context
 
 
 class ProfileView(LoginRequiredMixin, View):

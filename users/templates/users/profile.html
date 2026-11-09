@@ -80,6 +80,15 @@
           Без chat ID напоминания отправляться не будут.
         </p>
 
+        <a
+          class="btn btn-sm btn-outline-matrix mb-3"
+          href="{% url 'users_web:telegram-guide' %}"
+          target="_blank"
+          rel="noopener"
+        >
+          <i class="bi bi-question-circle"></i> Где взять chat ID и username?
+        </a>
+
         <form method="post" novalidate>
           {% csrf_token %}
           {% for field in telegram_form %}
